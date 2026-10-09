@@ -41,14 +41,14 @@ titles in `graph/sample_movies.json`.
 ## Website (GitHub Pages)
 
 `.github/workflows/pages.yml` publishes `site/` on every push to `main`, plus `graph.html` built at deploy time.
-It uses `site/movies.json` if that file is committed, and otherwise the sample data. A Pages site is public,
-so committing `site/movies.json` publishes your movie list. Turn Pages on once under
+It uses `site/movies.json` if that file is committed, and otherwise the sample data. `site/menu.html` is the horror tasting menu. A Pages site is public,
+so committing `site/movies.json` publishes your movie list (this repo does, on purpose). Turn Pages on once under
 Settings → Pages → Build and deployment → Source: **GitHub Actions**.
 
 ## Privacy and secrets
 
-- Your watch history and everything derived from it (`data/*`, `graph/movie-graph.html`) is gitignored.
-  Commit a built graph only if you mean to share it.
+- Your raw watch history and pipeline outputs (`data/*`, `graph/movie-graph.html`) are gitignored.
+  The published movie list in `site/movies.json` is a trimmed copy: TMDB id, title, year, genres, directors, cast, rating, runtime.
 - The TMDB key is read only from the `TMDB_API_KEY` environment variable. Never put it in a file in this repo.
 
 ## Known limitations
