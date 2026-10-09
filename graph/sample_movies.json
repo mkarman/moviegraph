@@ -1,0 +1,1705 @@
+{
+ "sample": true,
+ "movies": [
+  {
+   "id": "sample-0",
+   "title": "Videodrome",
+   "year": 1983,
+   "genres": [
+    "Horror",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "David Cronenberg"
+   ],
+   "cast": [
+    "James Woods",
+    "Debbie Harry",
+    "Sonja Smits"
+   ],
+   "rating": 7.0
+  },
+  {
+   "id": "sample-1",
+   "title": "Timecrimes",
+   "year": 2007,
+   "genres": [
+    "Sci-Fi",
+    "Thriller"
+   ],
+   "directors": [
+    "Nacho Vigalondo"
+   ],
+   "cast": [
+    "Karra Elejalde",
+    "Candela Fernández",
+    "Nacho Vigalondo"
+   ],
+   "rating": 6.9
+  },
+  {
+   "id": "sample-2",
+   "title": "Midnight Special",
+   "year": 2016,
+   "genres": [
+    "Sci-Fi",
+    "Drama"
+   ],
+   "directors": [
+    "Jeff Nichols"
+   ],
+   "cast": [
+    "Michael Shannon",
+    "Joel Edgerton",
+    "Kirsten Dunst",
+    "Adam Driver"
+   ],
+   "rating": 6.6
+  },
+  {
+   "id": "sample-3",
+   "title": "Hunt for the Wilderpeople",
+   "year": 2016,
+   "genres": [
+    "Comedy",
+    "Adventure",
+    "Drama"
+   ],
+   "directors": [
+    "Taika Waititi"
+   ],
+   "cast": [
+    "Sam Neill",
+    "Julian Dennison",
+    "Rima Te Wiata"
+   ],
+   "rating": 7.5
+  },
+  {
+   "id": "sample-4",
+   "title": "Beyond the Black Rainbow",
+   "year": 2010,
+   "genres": [
+    "Sci-Fi",
+    "Horror"
+   ],
+   "directors": [
+    "Panos Cosmatos"
+   ],
+   "cast": [
+    "Michael Rogers",
+    "Eva Bourne"
+   ],
+   "rating": 5.9
+  },
+  {
+   "id": "sample-5",
+   "title": "Mandy",
+   "year": 2018,
+   "genres": [
+    "Horror",
+    "Action",
+    "Thriller"
+   ],
+   "directors": [
+    "Panos Cosmatos"
+   ],
+   "cast": [
+    "Nicolas Cage",
+    "Andrea Riseborough",
+    "Linus Roache"
+   ],
+   "rating": 6.5
+  },
+  {
+   "id": "sample-6",
+   "title": "Something in the Dirt",
+   "year": 2022,
+   "genres": [
+    "Sci-Fi",
+    "Thriller",
+    "Comedy"
+   ],
+   "directors": [
+    "Justin Benson",
+    "Aaron Moorhead"
+   ],
+   "cast": [
+    "Justin Benson",
+    "Aaron Moorhead"
+   ],
+   "rating": 6.4
+  },
+  {
+   "id": "sample-7",
+   "title": "The Endless",
+   "year": 2017,
+   "genres": [
+    "Sci-Fi",
+    "Horror",
+    "Mystery"
+   ],
+   "directors": [
+    "Justin Benson",
+    "Aaron Moorhead"
+   ],
+   "cast": [
+    "Justin Benson",
+    "Aaron Moorhead",
+    "Callie Hernandez"
+   ],
+   "rating": 6.5
+  },
+  {
+   "id": "sample-8",
+   "title": "Spring",
+   "year": 2014,
+   "genres": [
+    "Horror",
+    "Romance",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "Justin Benson",
+    "Aaron Moorhead"
+   ],
+   "cast": [
+    "Lou Taylor Pucci",
+    "Nadia Hilker"
+   ],
+   "rating": 6.4
+  },
+  {
+   "id": "sample-9",
+   "title": "Synchronic",
+   "year": 2019,
+   "genres": [
+    "Sci-Fi",
+    "Drama",
+    "Thriller"
+   ],
+   "directors": [
+    "Justin Benson",
+    "Aaron Moorhead"
+   ],
+   "cast": [
+    "Anthony Mackie",
+    "Jamie Dornan",
+    "Katie Aselton"
+   ],
+   "rating": 6.2
+  },
+  {
+   "id": "sample-10",
+   "title": "Coherence",
+   "year": 2013,
+   "genres": [
+    "Sci-Fi",
+    "Thriller",
+    "Mystery"
+   ],
+   "directors": [
+    "James Ward Byrkit"
+   ],
+   "cast": [
+    "Emily Baldoni",
+    "Maury Sterling",
+    "Nicholas Brendon"
+   ],
+   "rating": 7.1
+  },
+  {
+   "id": "sample-11",
+   "title": "Caveat",
+   "year": 2020,
+   "genres": [
+    "Horror",
+    "Thriller"
+   ],
+   "directors": [
+    "Damian Mc Carthy"
+   ],
+   "cast": [
+    "Jonathan French",
+    "Leila Sykes",
+    "Ben Caplan"
+   ],
+   "rating": 6.1
+  },
+  {
+   "id": "sample-12",
+   "title": "Oddity",
+   "year": 2024,
+   "genres": [
+    "Horror",
+    "Mystery"
+   ],
+   "directors": [
+    "Damian Mc Carthy"
+   ],
+   "cast": [
+    "Carolyn Bracken",
+    "Gwilym Lee",
+    "Caroline Menton"
+   ],
+   "rating": 6.8
+  },
+  {
+   "id": "sample-13",
+   "title": "Bugonia",
+   "year": 2025,
+   "genres": [
+    "Sci-Fi",
+    "Comedy",
+    "Thriller"
+   ],
+   "directors": [
+    "Yorgos Lanthimos"
+   ],
+   "cast": [
+    "Emma Stone",
+    "Jesse Plemons",
+    "Aidan Delbis"
+   ],
+   "rating": 7.2
+  },
+  {
+   "id": "sample-14",
+   "title": "Poor Things",
+   "year": 2023,
+   "genres": [
+    "Sci-Fi",
+    "Romance",
+    "Comedy"
+   ],
+   "directors": [
+    "Yorgos Lanthimos"
+   ],
+   "cast": [
+    "Emma Stone",
+    "Mark Ruffalo",
+    "Willem Dafoe"
+   ],
+   "rating": 7.7
+  },
+  {
+   "id": "sample-15",
+   "title": "Die My Love",
+   "year": 2025,
+   "genres": [
+    "Drama",
+    "Thriller"
+   ],
+   "directors": [
+    "Lynne Ramsay"
+   ],
+   "cast": [
+    "Jennifer Lawrence",
+    "Robert Pattinson",
+    "LaKeith Stanfield"
+   ],
+   "rating": 6.4
+  },
+  {
+   "id": "sample-16",
+   "title": "Strawberry Mansion",
+   "year": 2021,
+   "genres": [
+    "Fantasy",
+    "Sci-Fi",
+    "Comedy"
+   ],
+   "directors": [
+    "Albert Birney",
+    "Kentucker Audley"
+   ],
+   "cast": [
+    "Kentucker Audley",
+    "Penny Fuller",
+    "Grace Glowicki"
+   ],
+   "rating": 6.4
+  },
+  {
+   "id": "sample-17",
+   "title": "Ghost Stories",
+   "year": 2017,
+   "genres": [
+    "Horror",
+    "Mystery"
+   ],
+   "directors": [
+    "Jeremy Dyson",
+    "Andy Nyman"
+   ],
+   "cast": [
+    "Andy Nyman",
+    "Martin Freeman",
+    "Paul Whitehouse",
+    "Alex Lawther"
+   ],
+   "rating": 6.3
+  },
+  {
+   "id": "sample-18",
+   "title": "Lord of Illusions",
+   "year": 1995,
+   "genres": [
+    "Horror",
+    "Fantasy",
+    "Mystery"
+   ],
+   "directors": [
+    "Clive Barker"
+   ],
+   "cast": [
+    "Scott Bakula",
+    "Kevin J. O'Connor",
+    "Famke Janssen"
+   ],
+   "rating": 6.0
+  },
+  {
+   "id": "sample-19",
+   "title": "Nightbreed",
+   "year": 1990,
+   "genres": [
+    "Horror",
+    "Fantasy"
+   ],
+   "directors": [
+    "Clive Barker"
+   ],
+   "cast": [
+    "Craig Sheffer",
+    "David Cronenberg",
+    "Anne Bobby"
+   ],
+   "rating": 6.5
+  },
+  {
+   "id": "sample-20",
+   "title": "The Hidden",
+   "year": 1987,
+   "genres": [
+    "Sci-Fi",
+    "Action",
+    "Horror"
+   ],
+   "directors": [
+    "Jack Sholder"
+   ],
+   "cast": [
+    "Kyle MacLachlan",
+    "Michael Nouri"
+   ],
+   "rating": 6.8
+  },
+  {
+   "id": "sample-21",
+   "title": "Matinee",
+   "year": 1993,
+   "genres": [
+    "Comedy",
+    "Drama"
+   ],
+   "directors": [
+    "Joe Dante"
+   ],
+   "cast": [
+    "John Goodman",
+    "Cathy Moriarty",
+    "Simon Fenton"
+   ],
+   "rating": 6.7
+  },
+  {
+   "id": "sample-22",
+   "title": "Explorers",
+   "year": 1985,
+   "genres": [
+    "Sci-Fi",
+    "Adventure",
+    "Fantasy"
+   ],
+   "directors": [
+    "Joe Dante"
+   ],
+   "cast": [
+    "Ethan Hawke",
+    "River Phoenix",
+    "Jason Presson"
+   ],
+   "rating": 6.5
+  },
+  {
+   "id": "sample-23",
+   "title": "Wicked City",
+   "year": 1987,
+   "genres": [
+    "Animation",
+    "Horror",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "Yoshiaki Kawajiri"
+   ],
+   "cast": [
+    "Yūsaku Yara",
+    "Toshiko Fujita"
+   ],
+   "rating": 6.9
+  },
+  {
+   "id": "sample-24",
+   "title": "Demon City Shinjuku",
+   "year": 1988,
+   "genres": [
+    "Animation",
+    "Horror",
+    "Fantasy"
+   ],
+   "directors": [
+    "Yoshiaki Kawajiri"
+   ],
+   "cast": [
+    "Hideyuki Hori",
+    "Hiroko Emori"
+   ],
+   "rating": 6.4
+  },
+  {
+   "id": "sample-25",
+   "title": "Perfect Blue",
+   "year": 1997,
+   "genres": [
+    "Animation",
+    "Thriller",
+    "Mystery"
+   ],
+   "directors": [
+    "Satoshi Kon"
+   ],
+   "cast": [
+    "Junko Iwao",
+    "Rica Matsumoto"
+   ],
+   "rating": 8.2
+  },
+  {
+   "id": "sample-26",
+   "title": "Akira",
+   "year": 1988,
+   "genres": [
+    "Animation",
+    "Sci-Fi",
+    "Action"
+   ],
+   "directors": [
+    "Katsuhiro Otomo"
+   ],
+   "cast": [
+    "Mitsuo Iwata",
+    "Nozomu Sasaki"
+   ],
+   "rating": 8.0
+  },
+  {
+   "id": "sample-27",
+   "title": "Memories",
+   "year": 1995,
+   "genres": [
+    "Animation",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "Katsuhiro Otomo",
+    "Kōji Morimoto",
+    "Tensai Okamura"
+   ],
+   "cast": [
+    "Tsutomu Isobe",
+    "Shigeru Chiba"
+   ],
+   "rating": 7.6
+  },
+  {
+   "id": "sample-28",
+   "title": "Ghost in the Shell",
+   "year": 1995,
+   "genres": [
+    "Animation",
+    "Sci-Fi",
+    "Action"
+   ],
+   "directors": [
+    "Mamoru Oshii"
+   ],
+   "cast": [
+    "Atsuko Tanaka",
+    "Akio Ōtsuka"
+   ],
+   "rating": 7.8
+  },
+  {
+   "id": "sample-29",
+   "title": "Mermaid",
+   "year": 2016,
+   "genres": [
+    "Comedy",
+    "Fantasy",
+    "Romance"
+   ],
+   "directors": [
+    "Stephen Chow"
+   ],
+   "cast": [
+    "Deng Chao",
+    "Lin Yun",
+    "Show Lo"
+   ],
+   "rating": 6.2
+  },
+  {
+   "id": "sample-30",
+   "title": "Kung Fu Hustle",
+   "year": 2004,
+   "genres": [
+    "Action",
+    "Comedy",
+    "Crime"
+   ],
+   "directors": [
+    "Stephen Chow"
+   ],
+   "cast": [
+    "Stephen Chow",
+    "Yuen Wah",
+    "Yuen Qiu"
+   ],
+   "rating": 7.5
+  },
+  {
+   "id": "sample-31",
+   "title": "Journey to the West",
+   "year": 2013,
+   "genres": [
+    "Fantasy",
+    "Adventure",
+    "Comedy"
+   ],
+   "directors": [
+    "Stephen Chow"
+   ],
+   "cast": [
+    "Shu Qi",
+    "Wen Zhang",
+    "Huang Bo"
+   ],
+   "rating": 6.5
+  },
+  {
+   "id": "sample-32",
+   "title": "The Greasy Strangler",
+   "year": 2016,
+   "genres": [
+    "Comedy",
+    "Horror"
+   ],
+   "directors": [
+    "Jim Hosking"
+   ],
+   "cast": [
+    "Michael St. Michaels",
+    "Sky Elobar",
+    "Elizabeth De Razzo"
+   ],
+   "rating": 4.9
+  },
+  {
+   "id": "sample-33",
+   "title": "Masters of the Universe",
+   "year": 1987,
+   "genres": [
+    "Fantasy",
+    "Action",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "Gary Goddard"
+   ],
+   "cast": [
+    "Dolph Lundgren",
+    "Frank Langella",
+    "Meg Foster",
+    "Courteney Cox"
+   ],
+   "rating": 5.4
+  },
+  {
+   "id": "sample-34",
+   "title": "Enter the Fat Dragon",
+   "year": 2020,
+   "genres": [
+    "Action",
+    "Comedy"
+   ],
+   "directors": [
+    "Kenji Tanigaki"
+   ],
+   "cast": [
+    "Donnie Yen",
+    "Niki Chow",
+    "Teresa Mo"
+   ],
+   "rating": 6.2
+  },
+  {
+   "id": "sample-35",
+   "title": "Death on the Nile",
+   "year": 2022,
+   "genres": [
+    "Mystery",
+    "Crime",
+    "Drama"
+   ],
+   "directors": [
+    "Kenneth Branagh"
+   ],
+   "cast": [
+    "Kenneth Branagh",
+    "Gal Gadot",
+    "Emma Mackey"
+   ],
+   "rating": 6.4
+  },
+  {
+   "id": "sample-36",
+   "title": "Murder on the Orient Express",
+   "year": 2017,
+   "genres": [
+    "Mystery",
+    "Crime",
+    "Drama"
+   ],
+   "directors": [
+    "Kenneth Branagh"
+   ],
+   "cast": [
+    "Kenneth Branagh",
+    "Michelle Pfeiffer",
+    "Daisy Ridley",
+    "Penélope Cruz"
+   ],
+   "rating": 6.7
+  },
+  {
+   "id": "sample-37",
+   "title": "A Haunting in Venice",
+   "year": 2023,
+   "genres": [
+    "Mystery",
+    "Crime",
+    "Horror"
+   ],
+   "directors": [
+    "Kenneth Branagh"
+   ],
+   "cast": [
+    "Kenneth Branagh",
+    "Michelle Yeoh",
+    "Tina Fey",
+    "Jamie Dornan"
+   ],
+   "rating": 6.6
+  },
+  {
+   "id": "sample-38",
+   "title": "Blithe Spirit",
+   "year": 2020,
+   "genres": [
+    "Comedy",
+    "Fantasy"
+   ],
+   "directors": [
+    "Edward Hall"
+   ],
+   "cast": [
+    "Dan Stevens",
+    "Leslie Mann",
+    "Isla Fisher",
+    "Judi Dench"
+   ],
+   "rating": 5.4
+  },
+  {
+   "id": "sample-39",
+   "title": "Beyond the Infinite Two Minutes",
+   "year": 2020,
+   "genres": [
+    "Sci-Fi",
+    "Comedy"
+   ],
+   "directors": [
+    "Junta Yamaguchi"
+   ],
+   "cast": [
+    "Kazunari Tosa",
+    "Riko Fujitani"
+   ],
+   "rating": 7.3
+  },
+  {
+   "id": "sample-40",
+   "title": "Prince of Darkness",
+   "year": 1987,
+   "genres": [
+    "Horror",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "John Carpenter"
+   ],
+   "cast": [
+    "Donald Pleasence",
+    "Jameson Parker",
+    "Lisa Blount"
+   ],
+   "rating": 6.6
+  },
+  {
+   "id": "sample-41",
+   "title": "In the Mouth of Madness",
+   "year": 1994,
+   "genres": [
+    "Horror",
+    "Mystery",
+    "Thriller"
+   ],
+   "directors": [
+    "John Carpenter"
+   ],
+   "cast": [
+    "Sam Neill",
+    "Jürgen Prochnow",
+    "Julie Carmen"
+   ],
+   "rating": 7.0
+  },
+  {
+   "id": "sample-42",
+   "title": "Escape from New York",
+   "year": 1981,
+   "genres": [
+    "Sci-Fi",
+    "Action"
+   ],
+   "directors": [
+    "John Carpenter"
+   ],
+   "cast": [
+    "Kurt Russell",
+    "Lee Van Cleef",
+    "Donald Pleasence"
+   ],
+   "rating": 7.0
+  },
+  {
+   "id": "sample-43",
+   "title": "Big Trouble in Little China",
+   "year": 1986,
+   "genres": [
+    "Action",
+    "Comedy",
+    "Fantasy"
+   ],
+   "directors": [
+    "John Carpenter"
+   ],
+   "cast": [
+    "Kurt Russell",
+    "Kim Cattrall",
+    "Dennis Dun"
+   ],
+   "rating": 7.1
+  },
+  {
+   "id": "sample-44",
+   "title": "The Ward",
+   "year": 2010,
+   "genres": [
+    "Horror",
+    "Thriller"
+   ],
+   "directors": [
+    "John Carpenter"
+   ],
+   "cast": [
+    "Amber Heard",
+    "Mamie Gummer",
+    "Danielle Panabaker"
+   ],
+   "rating": 5.7
+  },
+  {
+   "id": "sample-45",
+   "title": "No Country for Old Men",
+   "year": 2007,
+   "genres": [
+    "Crime",
+    "Drama",
+    "Thriller"
+   ],
+   "directors": [
+    "Joel Coen",
+    "Ethan Coen"
+   ],
+   "cast": [
+    "Tommy Lee Jones",
+    "Javier Bardem",
+    "Josh Brolin"
+   ],
+   "rating": 7.9
+  },
+  {
+   "id": "sample-46",
+   "title": "Barton Fink",
+   "year": 1991,
+   "genres": [
+    "Drama",
+    "Comedy",
+    "Mystery"
+   ],
+   "directors": [
+    "Joel Coen",
+    "Ethan Coen"
+   ],
+   "cast": [
+    "John Turturro",
+    "John Goodman",
+    "Judy Davis"
+   ],
+   "rating": 7.4
+  },
+  {
+   "id": "sample-47",
+   "title": "Burn After Reading",
+   "year": 2008,
+   "genres": [
+    "Comedy",
+    "Crime"
+   ],
+   "directors": [
+    "Joel Coen",
+    "Ethan Coen"
+   ],
+   "cast": [
+    "George Clooney",
+    "Frances McDormand",
+    "Brad Pitt",
+    "John Malkovich"
+   ],
+   "rating": 6.7
+  },
+  {
+   "id": "sample-48",
+   "title": "The Royal Tenenbaums",
+   "year": 2001,
+   "genres": [
+    "Comedy",
+    "Drama"
+   ],
+   "directors": [
+    "Wes Anderson"
+   ],
+   "cast": [
+    "Gene Hackman",
+    "Anjelica Huston",
+    "Bill Murray",
+    "Owen Wilson"
+   ],
+   "rating": 7.3
+  },
+  {
+   "id": "sample-49",
+   "title": "Bottle Rocket",
+   "year": 1996,
+   "genres": [
+    "Comedy",
+    "Crime"
+   ],
+   "directors": [
+    "Wes Anderson"
+   ],
+   "cast": [
+    "Owen Wilson",
+    "Luke Wilson",
+    "Robert Musgrave"
+   ],
+   "rating": 6.6
+  },
+  {
+   "id": "sample-50",
+   "title": "The French Dispatch",
+   "year": 2021,
+   "genres": [
+    "Comedy",
+    "Drama",
+    "Romance"
+   ],
+   "directors": [
+    "Wes Anderson"
+   ],
+   "cast": [
+    "Benicio del Toro",
+    "Frances McDormand",
+    "Bill Murray",
+    "Timothée Chalamet"
+   ],
+   "rating": 7.0
+  },
+  {
+   "id": "sample-51",
+   "title": "Asteroid City",
+   "year": 2023,
+   "genres": [
+    "Comedy",
+    "Drama",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "Wes Anderson"
+   ],
+   "cast": [
+    "Jason Schwartzman",
+    "Scarlett Johansson",
+    "Tom Hanks"
+   ],
+   "rating": 6.5
+  },
+  {
+   "id": "sample-52",
+   "title": "The Phoenician Scheme",
+   "year": 2025,
+   "genres": [
+    "Comedy",
+    "Adventure"
+   ],
+   "directors": [
+    "Wes Anderson"
+   ],
+   "cast": [
+    "Benicio del Toro",
+    "Mia Threapleton",
+    "Michael Cera"
+   ],
+   "rating": 6.8
+  },
+  {
+   "id": "sample-53",
+   "title": "Full Metal Jacket",
+   "year": 1987,
+   "genres": [
+    "Drama",
+    "War"
+   ],
+   "directors": [
+    "Stanley Kubrick"
+   ],
+   "cast": [
+    "Matthew Modine",
+    "R. Lee Ermey",
+    "Vincent D'Onofrio"
+   ],
+   "rating": 8.1
+  },
+  {
+   "id": "sample-54",
+   "title": "Barry Lyndon",
+   "year": 1975,
+   "genres": [
+    "Drama",
+    "Romance",
+    "War"
+   ],
+   "directors": [
+    "Stanley Kubrick"
+   ],
+   "cast": [
+    "Ryan O'Neal",
+    "Marisa Berenson",
+    "Patrick Magee"
+   ],
+   "rating": 7.8
+  },
+  {
+   "id": "sample-55",
+   "title": "Seven Psychopaths",
+   "year": 2012,
+   "genres": [
+    "Comedy",
+    "Crime"
+   ],
+   "directors": [
+    "Martin McDonagh"
+   ],
+   "cast": [
+    "Colin Farrell",
+    "Sam Rockwell",
+    "Christopher Walken",
+    "Woody Harrelson"
+   ],
+   "rating": 6.8
+  },
+  {
+   "id": "sample-56",
+   "title": "Three Billboards Outside Ebbing, Missouri",
+   "year": 2017,
+   "genres": [
+    "Crime",
+    "Drama"
+   ],
+   "directors": [
+    "Martin McDonagh"
+   ],
+   "cast": [
+    "Frances McDormand",
+    "Woody Harrelson",
+    "Sam Rockwell"
+   ],
+   "rating": 7.8
+  },
+  {
+   "id": "sample-57",
+   "title": "Fight Club",
+   "year": 1999,
+   "genres": [
+    "Drama",
+    "Thriller"
+   ],
+   "directors": [
+    "David Fincher"
+   ],
+   "cast": [
+    "Brad Pitt",
+    "Edward Norton",
+    "Helena Bonham Carter"
+   ],
+   "rating": 8.4
+  },
+  {
+   "id": "sample-58",
+   "title": "The Game",
+   "year": 1997,
+   "genres": [
+    "Drama",
+    "Mystery",
+    "Thriller"
+   ],
+   "directors": [
+    "David Fincher"
+   ],
+   "cast": [
+    "Michael Douglas",
+    "Sean Penn",
+    "Deborah Kara Unger"
+   ],
+   "rating": 7.4
+  },
+  {
+   "id": "sample-59",
+   "title": "John Wick: Chapter 4",
+   "year": 2023,
+   "genres": [
+    "Action",
+    "Thriller",
+    "Crime"
+   ],
+   "directors": [
+    "Chad Stahelski"
+   ],
+   "cast": [
+    "Keanu Reeves",
+    "Donnie Yen",
+    "Bill Skarsgård"
+   ],
+   "rating": 7.7
+  },
+  {
+   "id": "sample-60",
+   "title": "John Wick: Chapter 3 - Parabellum",
+   "year": 2019,
+   "genres": [
+    "Action",
+    "Thriller",
+    "Crime"
+   ],
+   "directors": [
+    "Chad Stahelski"
+   ],
+   "cast": [
+    "Keanu Reeves",
+    "Halle Berry",
+    "Ian McShane"
+   ],
+   "rating": 7.4
+  },
+  {
+   "id": "sample-61",
+   "title": "Bill & Ted's Excellent Adventure",
+   "year": 1989,
+   "genres": [
+    "Comedy",
+    "Adventure",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "Stephen Herek"
+   ],
+   "cast": [
+    "Keanu Reeves",
+    "Alex Winter",
+    "George Carlin"
+   ],
+   "rating": 6.9
+  },
+  {
+   "id": "sample-62",
+   "title": "Bill & Ted's Bogus Journey",
+   "year": 1991,
+   "genres": [
+    "Comedy",
+    "Adventure",
+    "Fantasy"
+   ],
+   "directors": [
+    "Peter Hewitt"
+   ],
+   "cast": [
+    "Keanu Reeves",
+    "Alex Winter",
+    "William Sadler"
+   ],
+   "rating": 6.3
+  },
+  {
+   "id": "sample-63",
+   "title": "Constantine",
+   "year": 2005,
+   "genres": [
+    "Fantasy",
+    "Action",
+    "Horror"
+   ],
+   "directors": [
+    "Francis Lawrence"
+   ],
+   "cast": [
+    "Keanu Reeves",
+    "Rachel Weisz",
+    "Shia LaBeouf"
+   ],
+   "rating": 7.0
+  },
+  {
+   "id": "sample-64",
+   "title": "Everything Everywhere All at Once",
+   "year": 2022,
+   "genres": [
+    "Action",
+    "Adventure",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "Daniel Kwan",
+    "Daniel Scheinert"
+   ],
+   "cast": [
+    "Michelle Yeoh",
+    "Ke Huy Quan",
+    "Jamie Lee Curtis"
+   ],
+   "rating": 7.8
+  },
+  {
+   "id": "sample-65",
+   "title": "Nope",
+   "year": 2022,
+   "genres": [
+    "Horror",
+    "Sci-Fi",
+    "Mystery"
+   ],
+   "directors": [
+    "Jordan Peele"
+   ],
+   "cast": [
+    "Daniel Kaluuya",
+    "Keke Palmer",
+    "Steven Yeun"
+   ],
+   "rating": 6.8
+  },
+  {
+   "id": "sample-66",
+   "title": "Barbarian",
+   "year": 2022,
+   "genres": [
+    "Horror",
+    "Thriller"
+   ],
+   "directors": [
+    "Zach Cregger"
+   ],
+   "cast": [
+    "Georgina Campbell",
+    "Bill Skarsgård",
+    "Justin Long"
+   ],
+   "rating": 6.9
+  },
+  {
+   "id": "sample-67",
+   "title": "Weapons",
+   "year": 2025,
+   "genres": [
+    "Horror",
+    "Mystery"
+   ],
+   "directors": [
+    "Zach Cregger"
+   ],
+   "cast": [
+    "Julia Garner",
+    "Josh Brolin",
+    "Alden Ehrenreich"
+   ],
+   "rating": 7.4
+  },
+  {
+   "id": "sample-68",
+   "title": "The Substance",
+   "year": 2024,
+   "genres": [
+    "Horror",
+    "Sci-Fi",
+    "Drama"
+   ],
+   "directors": [
+    "Coralie Fargeat"
+   ],
+   "cast": [
+    "Demi Moore",
+    "Margaret Qualley",
+    "Dennis Quaid"
+   ],
+   "rating": 7.1
+  },
+  {
+   "id": "sample-69",
+   "title": "Late Night with the Devil",
+   "year": 2023,
+   "genres": [
+    "Horror"
+   ],
+   "directors": [
+    "Cameron Cairnes",
+    "Colin Cairnes"
+   ],
+   "cast": [
+    "David Dastmalchian",
+    "Laura Gordon",
+    "Ian Bliss"
+   ],
+   "rating": 6.9
+  },
+  {
+   "id": "sample-70",
+   "title": "Midsommar",
+   "year": 2019,
+   "genres": [
+    "Horror",
+    "Drama",
+    "Mystery"
+   ],
+   "directors": [
+    "Ari Aster"
+   ],
+   "cast": [
+    "Florence Pugh",
+    "Jack Reynor",
+    "Will Poulter"
+   ],
+   "rating": 7.1
+  },
+  {
+   "id": "sample-71",
+   "title": "In the Earth",
+   "year": 2021,
+   "genres": [
+    "Horror",
+    "Sci-Fi",
+    "Thriller"
+   ],
+   "directors": [
+    "Ben Wheatley"
+   ],
+   "cast": [
+    "Joel Fry",
+    "Ellora Torchia",
+    "Reece Shearsmith"
+   ],
+   "rating": 5.6
+  },
+  {
+   "id": "sample-72",
+   "title": "The Green Knight",
+   "year": 2021,
+   "genres": [
+    "Fantasy",
+    "Adventure",
+    "Drama"
+   ],
+   "directors": [
+    "David Lowery"
+   ],
+   "cast": [
+    "Dev Patel",
+    "Alicia Vikander",
+    "Joel Edgerton"
+   ],
+   "rating": 6.6
+  },
+  {
+   "id": "sample-73",
+   "title": "Dune",
+   "year": 2021,
+   "genres": [
+    "Sci-Fi",
+    "Adventure"
+   ],
+   "directors": [
+    "Denis Villeneuve"
+   ],
+   "cast": [
+    "Timothée Chalamet",
+    "Rebecca Ferguson",
+    "Oscar Isaac"
+   ],
+   "rating": 7.8
+  },
+  {
+   "id": "sample-74",
+   "title": "Oppenheimer",
+   "year": 2023,
+   "genres": [
+    "Drama",
+    "War"
+   ],
+   "directors": [
+    "Christopher Nolan"
+   ],
+   "cast": [
+    "Cillian Murphy",
+    "Emily Blunt",
+    "Matt Damon"
+   ],
+   "rating": 8.1
+  },
+  {
+   "id": "sample-75",
+   "title": "Sunshine",
+   "year": 2007,
+   "genres": [
+    "Sci-Fi",
+    "Thriller"
+   ],
+   "directors": [
+    "Danny Boyle"
+   ],
+   "cast": [
+    "Cillian Murphy",
+    "Rose Byrne",
+    "Chris Evans"
+   ],
+   "rating": 7.1
+  },
+  {
+   "id": "sample-76",
+   "title": "Attack the Block",
+   "year": 2011,
+   "genres": [
+    "Sci-Fi",
+    "Action",
+    "Comedy"
+   ],
+   "directors": [
+    "Joe Cornish"
+   ],
+   "cast": [
+    "John Boyega",
+    "Jodie Whittaker",
+    "Nick Frost"
+   ],
+   "rating": 6.6
+  },
+  {
+   "id": "sample-77",
+   "title": "The Fifth Element",
+   "year": 1997,
+   "genres": [
+    "Sci-Fi",
+    "Action",
+    "Adventure"
+   ],
+   "directors": [
+    "Luc Besson"
+   ],
+   "cast": [
+    "Bruce Willis",
+    "Milla Jovovich",
+    "Gary Oldman"
+   ],
+   "rating": 7.5
+  },
+  {
+   "id": "sample-78",
+   "title": "The City of Lost Children",
+   "year": 1995,
+   "genres": [
+    "Fantasy",
+    "Sci-Fi",
+    "Adventure"
+   ],
+   "directors": [
+    "Marc Caro",
+    "Jean-Pierre Jeunet"
+   ],
+   "cast": [
+    "Ron Perlman",
+    "Daniel Emilfork",
+    "Judith Vittet"
+   ],
+   "rating": 7.3
+  },
+  {
+   "id": "sample-79",
+   "title": "Bubba Ho-Tep",
+   "year": 2002,
+   "genres": [
+    "Comedy",
+    "Horror",
+    "Fantasy"
+   ],
+   "directors": [
+    "Don Coscarelli"
+   ],
+   "cast": [
+    "Bruce Campbell",
+    "Ossie Davis"
+   ],
+   "rating": 6.6
+  },
+  {
+   "id": "sample-80",
+   "title": "John Dies at the End",
+   "year": 2012,
+   "genres": [
+    "Comedy",
+    "Horror",
+    "Sci-Fi"
+   ],
+   "directors": [
+    "Don Coscarelli"
+   ],
+   "cast": [
+    "Chase Williamson",
+    "Rob Mayes",
+    "Paul Giamatti"
+   ],
+   "rating": 5.9
+  },
+  {
+   "id": "sample-81",
+   "title": "My Name Is Bruce",
+   "year": 2007,
+   "genres": [
+    "Comedy",
+    "Horror"
+   ],
+   "directors": [
+    "Bruce Campbell"
+   ],
+   "cast": [
+    "Bruce Campbell",
+    "Grace Thurston",
+    "Ted Raimi"
+   ],
+   "rating": 5.8
+  },
+  {
+   "id": "sample-82",
+   "title": "Mad God",
+   "year": 2021,
+   "genres": [
+    "Animation",
+    "Horror",
+    "Fantasy"
+   ],
+   "directors": [
+    "Phil Tippett"
+   ],
+   "cast": [
+    "Alex Cox",
+    "Niketa Roman"
+   ],
+   "rating": 6.7
+  },
+  {
+   "id": "sample-83",
+   "title": "Hundreds of Beavers",
+   "year": 2022,
+   "genres": [
+    "Comedy",
+    "Adventure"
+   ],
+   "directors": [
+    "Mike Cheslik"
+   ],
+   "cast": [
+    "Ryland Brickson Cole Tews",
+    "Olivia Graves"
+   ],
+   "rating": 7.4
+  },
+  {
+   "id": "sample-84",
+   "title": "Dave Made a Maze",
+   "year": 2017,
+   "genres": [
+    "Comedy",
+    "Fantasy",
+    "Adventure"
+   ],
+   "directors": [
+    "Bill Watterson"
+   ],
+   "cast": [
+    "Nick Thune",
+    "Meera Rohit Kumbhani",
+    "Adam Busch"
+   ],
+   "rating": 6.1
+  },
+  {
+   "id": "sample-85",
+   "title": "Groundhog Day",
+   "year": 1993,
+   "genres": [
+    "Comedy",
+    "Fantasy",
+    "Romance"
+   ],
+   "directors": [
+    "Harold Ramis"
+   ],
+   "cast": [
+    "Bill Murray",
+    "Andie MacDowell",
+    "Chris Elliott"
+   ],
+   "rating": 7.7
+  },
+  {
+   "id": "sample-86",
+   "title": "The Nice Guys",
+   "year": 2016,
+   "genres": [
+    "Comedy",
+    "Crime",
+    "Action"
+   ],
+   "directors": [
+    "Shane Black"
+   ],
+   "cast": [
+    "Russell Crowe",
+    "Ryan Gosling",
+    "Angourie Rice"
+   ],
+   "rating": 7.1
+  },
+  {
+   "id": "sample-87",
+   "title": "Project Hail Mary",
+   "year": 2026,
+   "genres": [
+    "Sci-Fi",
+    "Adventure"
+   ],
+   "directors": [
+    "Phil Lord",
+    "Christopher Miller"
+   ],
+   "cast": [
+    "Ryan Gosling",
+    "Sandra Hüller"
+   ],
+   "rating": 8.0
+  },
+  {
+   "id": "sample-88",
+   "title": "Phantom of the Paradise",
+   "year": 1974,
+   "genres": [
+    "Comedy",
+    "Horror",
+    "Fantasy"
+   ],
+   "directors": [
+    "Brian De Palma"
+   ],
+   "cast": [
+    "William Finley",
+    "Paul Williams",
+    "Jessica Harper"
+   ],
+   "rating": 7.0
+  },
+  {
+   "id": "sample-89",
+   "title": "Possession",
+   "year": 1981,
+   "genres": [
+    "Horror",
+    "Drama"
+   ],
+   "directors": [
+    "Andrzej Żuławski"
+   ],
+   "cast": [
+    "Isabelle Adjani",
+    "Sam Neill",
+    "Heinz Bennent"
+   ],
+   "rating": 7.3
+  },
+  {
+   "id": "sample-90",
+   "title": "Suspiria",
+   "year": 1977,
+   "genres": [
+    "Horror"
+   ],
+   "directors": [
+    "Dario Argento"
+   ],
+   "cast": [
+    "Jessica Harper",
+    "Stefania Casini",
+    "Alida Valli"
+   ],
+   "rating": 7.2
+  }
+ ]
+}
