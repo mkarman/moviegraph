@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Osteria del Brivido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,500;1,400;1,500&display=swap">
+<style>
+/* Layout: a printed tasting-menu card laid on a dark wine-red tablecloth; one card, three courses, two columns of dishes on wide screens. */
+:root{
+  --table:#2a0d13;      /* tablecloth, bordeaux almost black */
+  --paper:#f4f0e8;      /* heavy menu stock */
+  --ink:#231a1a;        /* nero di seppia */
+  --ink-soft:#5d5150;
+  --wine:#8a1c2b;       /* course titles, accents */
+  --gilt:#a98a4f;       /* rules and frame */
+  --display:"Bodoni Moda","Didot","Bodoni 72",Georgia,serif;
+  --body:"Cormorant Garamond","Garamond","Times New Roman",serif;
+  color-scheme:light;
+}
+html{background:var(--table)}
+body{background:var(--table);color:var(--ink);font-family:var(--body);padding-block:clamp(16px,5vw,56px);padding-inline:16px;
+  background-image:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.06),transparent 60%)}
+.card{max-width:1000px;margin:0 auto;background:var(--paper);position:relative;padding:clamp(28px,6vw,72px) clamp(20px,6vw,80px);
+  box-shadow:0 30px 60px rgba(0,0,0,.45),0 2px 0 rgba(0,0,0,.2)}
+.card::before{content:"";position:absolute;inset:clamp(8px,1.4vw,16px);border:1px solid var(--gilt);pointer-events:none}
+.card::after{content:"";position:absolute;inset:calc(clamp(8px,1.4vw,16px) + 5px);border:.5px solid var(--gilt);opacity:.6;pointer-events:none}
+.mast{text-align:center;display:grid;gap:.5rem;justify-items:center}
+.mast .est{font-family:var(--display);font-size:.72rem;letter-spacing:.38em;text-transform:uppercase;color:var(--gilt)}
+.mast h1{font-family:var(--display);font-weight:400;font-style:italic;font-size:clamp(2.4rem,7vw,4.6rem);line-height:1;margin:0;color:var(--ink);text-wrap:balance;letter-spacing:-.01em}
+.mast .tag{font-family:var(--display);font-size:clamp(.78rem,1.8vw,.92rem);letter-spacing:.32em;text-transform:uppercase;color:var(--wine);margin:.4rem 0 0}
+.mast .note{font-style:italic;font-size:1.1rem;color:var(--ink-soft);max-width:34rem;margin:.6rem 0 0}
+.ornament{display:flex;align-items:center;gap:14px;justify-content:center;color:var(--gilt);margin:1.4rem auto 0;width:min(320px,80%)}
+.ornament::before,.ornament::after{content:"";flex:1;height:1px;background:var(--gilt)}
+.course{margin-top:clamp(2.2rem,5vw,3.6rem)}
+.course-head{text-align:center;display:grid;gap:.15rem;justify-items:center;margin-bottom:clamp(1.4rem,3vw,2.2rem)}
+.course-head .it{font-family:var(--body);font-style:italic;font-size:1.15rem;color:var(--ink-soft);margin:0}
+.course-head h2{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,4.6vw,2.8rem);letter-spacing:.22em;text-transform:uppercase;color:var(--wine);margin:0;padding-left:.22em}
+.course-head .sub{font-size:1.05rem;color:var(--ink-soft);margin:.2rem 0 0;font-style:italic}
+.course-head .count{font-family:var(--display);font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gilt);margin:.35rem 0 0}
+.dishes{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:clamp(28px,5vw,64px);row-gap:1.5rem}
+.dish{text-align:center;min-width:0;display:grid;gap:.22rem;align-content:start}
+.dish h3{margin:0;font-family:var(--display);font-weight:500;font-size:clamp(.95rem,2vw,1.08rem);letter-spacing:.12em;text-transform:uppercase;color:var(--ink);text-wrap:balance;line-height:1.35}
+.dish .y{font-family:var(--body);font-style:italic;font-weight:500;letter-spacing:0;text-transform:none;color:var(--wine);font-size:1.08em;white-space:nowrap}
+.dish .desc{margin:0;font-style:italic;font-size:1.12rem;line-height:1.35;color:var(--ink);text-wrap:pretty}
+.dish .meta{margin:0;display:flex;justify-content:center;gap:.7em;font-family:var(--display);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);font-variant-numeric:lining-nums tabular-nums}
+.dish .meta .rt{color:var(--gilt)}
+.dish .meta .rt::before{content:"·";margin-right:.7em;color:var(--ink-soft)}
+.divider{display:flex;align-items:center;gap:16px;color:var(--gilt);margin-top:clamp(2.2rem,5vw,3.6rem);font-size:.9rem}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gilt) 30%,var(--gilt) 70%,transparent)}
+.foot{margin-top:clamp(2.6rem,6vw,4rem);text-align:center;display:grid;gap:.35rem;justify-items:center}
+.foot p{margin:0;font-style:italic;color:var(--ink-soft);font-size:1rem;max-width:36rem}
+.foot .small{font-family:var(--display);font-style:normal;font-size:.64rem;letter-spacing:.3em;text-transform:uppercase;color:var(--gilt)}
+@media (max-width:640px){.dishes{grid-template-columns:minmax(0,1fr)}}
+</style>
+<main class="card">
+  <header class="mast">
+    <p class="est">Est. dalla cronologia di Prime Video</p>
+    <h1>Osteria del Brivido</h1>
+    <p class="tag">Menù degustazione dell'orrore</p>
+    <p class="note">75 films in three courses, chosen to recommend to friends. Order à la carte or stay for the whole evening.</p>
+    <div class="ornament" aria-hidden="true">✦</div>
+  </header>
+<section class="course" id="antipasti">
+<header class="course-head"><p class="it">Per stuzzicare</p><h2>Antipasti</h2><p class="sub">Light, playful bites. Horror with a wink.</p><p class="count">23 piatti</p></header>
+<ul class="dishes"><li class="dish"><h3><span class="t">House</span> <span class="y">1977</span></h3>
+<p class="desc">Seven schoolgirls and a country house with an appetite, served in candy colours.</p>
+<p class="meta"><span>Nobuhiko Obayashi</span><span class="rt">88′</span></p></li><li class="dish"><h3><span class="t">A Nightmare on Elm Street</span> <span class="y">1984</span></h3>
+<p class="desc">A striped sweater, a bladed glove, and dreams best taken before bedtime.</p>
+<p class="meta"><span>Wes Craven</span><span class="rt">91′</span></p></li><li class="dish"><h3><span class="t">The Lost Boys</span> <span class="y">1987</span></h3>
+<p class="desc">Boardwalk vampires and a saxophone solo, finished with holy water and garlic.</p>
+<p class="meta"><span>Joel Schumacher</span><span class="rt">97′</span></p></li><li class="dish"><h3><span class="t">High Spirits</span> <span class="y">1988</span></h3>
+<p class="desc">An Irish castle fakes its hauntings until the real ghosts sit down to dine.</p>
+<p class="meta"><span>Neil Jordan</span><span class="rt">99′</span></p></li><li class="dish"><h3><span class="t">The Lair of the White Worm</span> <span class="y">1988</span></h3>
+<p class="desc">Derbyshire folklore and a serpent goddess, flambéed in Ken Russell camp.</p>
+<p class="meta"><span>Ken Russell</span><span class="rt">93′</span></p></li><li class="dish"><h3><span class="t">The Frighteners</span> <span class="y">1996</span></h3>
+<p class="desc">A con-man psychic, his ghostly partners, and a reaper with a real grudge.</p>
+<p class="meta"><span>Peter Jackson</span><span class="rt">110′</span></p></li><li class="dish"><h3><span class="t">Idle Hands</span> <span class="y">1999</span></h3>
+<p class="desc">A stoner&#x27;s possessed right hand, with a dusting of Halloween.</p>
+<p class="meta"><span>Rodman Flender</span><span class="rt">92′</span></p></li><li class="dish"><h3><span class="t">Bubba Ho-tep</span> <span class="y">2002</span></h3>
+<p class="desc">Elvis and JFK defend a Texas rest home from a soul-eating mummy.</p>
+<p class="meta"><span>Don Coscarelli</span><span class="rt">92′</span></p></li><li class="dish"><h3><span class="t">Slither</span> <span class="y">2006</span></h3>
+<p class="desc">Small-town slugs from outer space, served warm and gooey.</p>
+<p class="meta"><span>James Gunn</span><span class="rt">96′</span></p></li><li class="dish"><h3><span class="t">The Host</span> <span class="y">2006</span></h3>
+<p class="desc">A Han River mutant and a gloriously hapless family, with a squid-ink bite.</p>
+<p class="meta"><span>Bong Joon-ho</span><span class="rt">120′</span></p></li><li class="dish"><h3><span class="t">Rare Exports: A Christmas Tale</span> <span class="y">2010</span></h3>
+<p class="desc">Lapland reindeer herders dig up the original Santa. Serve chilled.</p>
+<p class="meta"><span>Jalmari Helander</span><span class="rt">83′</span></p></li><li class="dish"><h3><span class="t">Tucker and Dale vs Evil</span> <span class="y">2010</span></h3>
+<p class="desc">Two kind-hearted hillbillies, one big misunderstanding, and a wood chipper.</p>
+<p class="meta"><span>Eli Craig</span><span class="rt">89′</span></p></li><li class="dish"><h3><span class="t">Fright Night</span> <span class="y">2011</span></h3>
+<p class="desc">The vampire next door, Las Vegas style, with Colin Farrell à point.</p>
+<p class="meta"><span>Craig Gillespie</span><span class="rt">106′</span></p></li><li class="dish"><h3><span class="t">The Cabin in the Woods</span> <span class="y">2011</span></h3>
+<p class="desc">Five friends, one cabin, and a basement stocked with every monster in the house.</p>
+<p class="meta"><span>Drew Goddard</span><span class="rt">95′</span></p></li><li class="dish"><h3><span class="t">John Dies at the End</span> <span class="y">2013</span></h3>
+<p class="desc">Soy sauce that opens other dimensions, with a side of meat monster.</p>
+<p class="meta"><span>Don Coscarelli</span><span class="rt">99′</span></p></li><li class="dish"><h3><span class="t">The Love Witch</span> <span class="y">2016</span></h3>
+<p class="desc">Technicolor love potions from a witch who loves a little too well.</p>
+<p class="meta"><span>Anna Biller</span><span class="rt">120′</span></p></li><li class="dish"><h3><span class="t">Dave Made a Maze</span> <span class="y">2017</span></h3>
+<p class="desc">A cardboard fort that is bigger, and bloodier, on the inside.</p>
+<p class="meta"><span>Bill Watterson</span><span class="rt">81′</span></p></li><li class="dish"><h3><span class="t">Boys from County Hell</span> <span class="y">2021</span></h3>
+<p class="desc">An Irish pub, a roadworks crew, and the local vampire legend.</p>
+<p class="meta"><span>Chris Baugh</span><span class="rt">89′</span></p></li><li class="dish"><h3><span class="t">Something in the Dirt</span> <span class="y">2022</span></h3>
+<p class="desc">Two LA neighbours, a floating crystal, and a home-cooked conspiracy.</p>
+<p class="meta"><span>Aaron Moorhead &amp; Justin Benson</span><span class="rt">115′</span></p></li><li class="dish"><h3><span class="t">How to Kill Monsters</span> <span class="y">2023</span></h3>
+<p class="desc">A police station besieged by Lovecraftian beasts. Extra gore, all practical.</p>
+<p class="meta"><span>Stewart Sparke</span><span class="rt">96′</span></p></li><li class="dish"><h3><span class="t">Destroy All Neighbors</span> <span class="y">2024</span></h3>
+<p class="desc">A prog-rock perfectionist, a noisy neighbour, and an accidental body count.</p>
+<p class="meta"><span>Josh Forbes</span><span class="rt">86′</span></p></li><li class="dish"><h3><span class="t">Cold Storage</span> <span class="y">2026</span></h3>
+<p class="desc">A fungus thaws in a self-storage vault and two night guards improvise.</p>
+<p class="meta"><span>Jonny Campbell</span><span class="rt">99′</span></p></li><li class="dish"><h3><span class="t">Forbidden Fruits</span> <span class="y">2026</span></h3>
+<p class="desc">A shopping-mall witch coven with impeccable merchandising.</p>
+<p class="meta"><span>Meredith Alloway</span><span class="rt">103′</span></p></li></ul></section>
+<div class="divider" aria-hidden="true"><span>✦</span></div>
+<section class="course" id="primi">
+<header class="course-head"><p class="it">La pasta della paura</p><h2>Primi</h2><p class="sub">Myth, madness and the uncanny, served in good measure.</p><p class="count">33 piatti</p></header>
+<ul class="dishes"><li class="dish"><h3><span class="t">The Watcher in the Woods</span> <span class="y">1980</span></h3>
+<p class="desc">Disney&#x27;s English country-house ghost story, gently steeped.</p>
+<p class="meta"><span>John Hough &amp; Vincent McEveety</span><span class="rt">83′</span></p></li><li class="dish"><h3><span class="t">The Evil Dead</span> <span class="y">1981</span></h3>
+<p class="desc">Five friends, the Book of the Dead, and a camera racing through the trees.</p>
+<p class="meta"><span>Sam Raimi</span><span class="rt">85′</span></p></li><li class="dish"><h3><span class="t">Poltergeist</span> <span class="y">1982</span></h3>
+<p class="desc">Suburban TV static and a closet portal. They&#x27;re here.</p>
+<p class="meta"><span>Tobe Hooper</span><span class="rt">114′</span></p></li><li class="dish"><h3><span class="t">House</span> <span class="y">1985</span></h3>
+<p class="desc">A novelist inherits his aunt&#x27;s house and every monster in its closets.</p>
+<p class="meta"><span>Steve Miner</span><span class="rt">93′</span></p></li><li class="dish"><h3><span class="t">Hellraiser</span> <span class="y">1987</span></h3>
+<p class="desc">A puzzle box opens and the Cenobites arrive with hooks and chains.</p>
+<p class="meta"><span>Clive Barker</span><span class="rt">94′</span></p></li><li class="dish"><h3><span class="t">Prince of Darkness</span> <span class="y">1987</span></h3>
+<p class="desc">A canister of liquid Satan in a church basement, with physicists.</p>
+<p class="meta"><span>John Carpenter</span><span class="rt">102′</span></p></li><li class="dish"><h3><span class="t">Flatliners</span> <span class="y">1990</span></h3>
+<p class="desc">Medical students stop their hearts to visit the other side, and bring something back.</p>
+<p class="meta"><span>Joel Schumacher</span><span class="rt">115′</span></p></li><li class="dish"><h3><span class="t">In the Mouth of Madness</span> <span class="y">1995</span></h3>
+<p class="desc">An insurance investigator follows a missing horror novelist into his own pages.</p>
+<p class="meta"><span>John Carpenter</span><span class="rt">95′</span></p></li><li class="dish"><h3><span class="t">Lord of Illusions</span> <span class="y">1995</span></h3>
+<p class="desc">A private eye, a stage magician, and a cult that wants its master back.</p>
+<p class="meta"><span>Clive Barker</span><span class="rt">109′</span></p></li><li class="dish"><h3><span class="t">The Prophecy</span> <span class="y">1995</span></h3>
+<p class="desc">Christopher Walken&#x27;s Gabriel brings a war in heaven down to earth.</p>
+<p class="meta"><span>Gregory Widen</span><span class="rt">98′</span></p></li><li class="dish"><h3><span class="t">Phantoms</span> <span class="y">1998</span></h3>
+<p class="desc">A Colorado ski town emptied overnight by something old and underground.</p>
+<p class="meta"><span>Joe Chappelle</span><span class="rt">96′</span></p></li><li class="dish"><h3><span class="t">Virus</span> <span class="y">1999</span></h3>
+<p class="desc">An alien intelligence seizes a derelict research ship in the eye of a typhoon.</p>
+<p class="meta"><span>John Bruno</span><span class="rt">100′</span></p></li><li class="dish"><h3><span class="t">Frailty</span> <span class="y">2001</span></h3>
+<p class="desc">A father, two sons, and a list of demons delivered by an angel.</p>
+<p class="meta"><span>Bill Paxton</span><span class="rt">100′</span></p></li><li class="dish"><h3><span class="t">Jeepers Creepers</span> <span class="y">2001</span></h3>
+<p class="desc">A back-road detour and a creature that feeds every twenty-third spring.</p>
+<p class="meta"><span>Victor Salva</span><span class="rt">90′</span></p></li><li class="dish"><h3><span class="t">30 Days of Night</span> <span class="y">2007</span></h3>
+<p class="desc">A month of Alaskan polar night and vampires who planned ahead.</p>
+<p class="meta"><span>David Slade</span><span class="rt">113′</span></p></li><li class="dish"><h3><span class="t">The Mist</span> <span class="y">2007</span></h3>
+<p class="desc">Townsfolk trapped in a supermarket while the fog fills with tentacles.</p>
+<p class="meta"><span>Frank Darabont</span><span class="rt">126′</span></p></li><li class="dish"><h3><span class="t">Let the Right One In</span> <span class="y">2008</span></h3>
+<p class="desc">A bullied boy and the vampire girl next door, in Swedish snow.</p>
+<p class="meta"><span>Tomas Alfredson</span><span class="rt">115′</span></p></li><li class="dish"><h3><span class="t">Spring</span> <span class="y">2014</span></h3>
+<p class="desc">A whirlwind romance on the Italian coast with a two-thousand-year-old secret.</p>
+<p class="meta"><span>Aaron Moorhead &amp; Justin Benson</span><span class="rt">110′</span></p></li><li class="dish"><h3><span class="t">Monolith</span> <span class="y">2016</span></h3>
+<p class="desc">A mother locked out of an impenetrable smart car, her baby still inside.</p>
+<p class="meta"><span>Ivan Silvestrini</span><span class="rt">81′</span></p></li><li class="dish"><h3><span class="t">The Endless</span> <span class="y">2017</span></h3>
+<p class="desc">Two brothers return to the cult they fled, where time folds back on itself.</p>
+<p class="meta"><span>Aaron Moorhead &amp; Justin Benson</span><span class="rt">112′</span></p></li><li class="dish"><h3><span class="t">Annihilation</span> <span class="y">2018</span></h3>
+<p class="desc">An expedition into the Shimmer, where everything refracts and blooms.</p>
+<p class="meta"><span>Alex Garland</span><span class="rt">115′</span></p></li><li class="dish"><h3><span class="t">Ghost Stories</span> <span class="y">2018</span></h3>
+<p class="desc">A sceptical professor reopens three unsolved hauntings.</p>
+<p class="meta"><span>Andy Nyman &amp; Jeremy Dyson</span><span class="rt">98′</span></p></li><li class="dish"><h3><span class="t">Midsommar</span> <span class="y">2019</span></h3>
+<p class="desc">A Swedish midsummer feast in endless daylight, garnished with flowers.</p>
+<p class="meta"><span>Ari Aster</span><span class="rt">147′</span></p></li><li class="dish"><h3><span class="t">Color Out of Space</span> <span class="y">2020</span></h3>
+<p class="desc">A meteorite lands on Nicolas Cage&#x27;s alpaca farm and paints everything magenta.</p>
+<p class="meta"><span>Richard Stanley</span><span class="rt">111′</span></p></li><li class="dish"><h3><span class="t">Sea Fever</span> <span class="y">2020</span></h3>
+<p class="desc">An Irish trawler snagged on a parasitic creature of the deep.</p>
+<p class="meta"><span>Neasa Hardiman</span><span class="rt">95′</span></p></li><li class="dish"><h3><span class="t">In the Earth</span> <span class="y">2021</span></h3>
+<p class="desc">A forest research trek, strobe light, and a woodland deity.</p>
+<p class="meta"><span>Ben Wheatley</span><span class="rt">107′</span></p></li><li class="dish"><h3><span class="t">Significant Other</span> <span class="y">2022</span></h3>
+<p class="desc">A hiking-trip proposal interrupted by something that fell from the sky.</p>
+<p class="meta"><span>Robert Olsen &amp; Dan Berk</span><span class="rt">85′</span></p></li><li class="dish"><h3><span class="t">Venus</span> <span class="y">2022</span></h3>
+<p class="desc">A Madrid tower block, a stolen bag of pills, and an eclipse cult.</p>
+<p class="meta"><span>Jaume Balagueró</span><span class="rt">101′</span></p></li><li class="dish"><h3><span class="t">Saloum</span> <span class="y">2023</span></h3>
+<p class="desc">Mercenaries hide out at a Senegalese holiday camp. The local spirits object.</p>
+<p class="meta"><span>Jean Luc Herbulot</span><span class="rt">84′</span></p></li><li class="dish"><h3><span class="t">The Deep Dark</span> <span class="y">2023</span></h3>
+<p class="desc">Miners descend into a sealed North African cavern in 1956.</p>
+<p class="meta"><span>Mathieu Turi</span><span class="rt">103′</span></p></li><li class="dish"><h3><span class="t">Late Night with the Devil</span> <span class="y">2024</span></h3>
+<p class="desc">A 1977 Halloween talk show, broadcast live with a possessed guest.</p>
+<p class="meta"><span>Cameron Cairnes &amp; Colin Cairnes</span><span class="rt">93′</span></p></li><li class="dish"><h3><span class="t">Things Will Be Different</span> <span class="y">2024</span></h3>
+<p class="desc">Two siblings on the run hide in a farmhouse outside of time.</p>
+<p class="meta"><span>Michael Felker</span><span class="rt">102′</span></p></li><li class="dish"><h3><span class="t">Weapons</span> <span class="y">2025</span></h3>
+<p class="desc">Seventeen children leave their beds at 2:17 a.m. and run into the dark.</p>
+<p class="meta"><span>Zach Cregger</span><span class="rt">129′</span></p></li></ul></section>
+<div class="divider" aria-hidden="true"><span>✦</span></div>
+<section class="course" id="secondi">
+<header class="course-head"><p class="it">Il piatto forte</p><h2>Secondi</h2><p class="sub">The heaviest dread in the house. Take your time.</p><p class="count">19 piatti</p></header>
+<ul class="dishes"><li class="dish"><h3><span class="t">Kwaidan</span> <span class="y">1964</span></h3>
+<p class="desc">Four Japanese ghost tales under painted skies. A long, stately course.</p>
+<p class="meta"><span>Masaki Kobayashi</span><span class="rt">183′</span></p></li><li class="dish"><h3><span class="t">Possession</span> <span class="y">1981</span></h3>
+<p class="desc">A Berlin marriage collapses into something kept in another apartment.</p>
+<p class="meta"><span>Andrzej Żuławski</span><span class="rt">124′</span></p></li><li class="dish"><h3><span class="t">Cure</span> <span class="y">1997</span></h3>
+<p class="desc">A Tokyo detective pursues a drifter who plants murder by suggestion.</p>
+<p class="meta"><span>Kiyoshi Kurosawa</span><span class="rt">111′</span></p></li><li class="dish"><h3><span class="t">Event Horizon</span> <span class="y">1997</span></h3>
+<p class="desc">A lost starship returns from hell, in need of a new crew.</p>
+<p class="meta"><span>Paul W. S. Anderson</span><span class="rt">96′</span></p></li><li class="dish"><h3><span class="t">Ring</span> <span class="y">1998</span></h3>
+<p class="desc">One cursed videotape, one phone call, seven days.</p>
+<p class="meta"><span>Hideo Nakata</span><span class="rt">96′</span></p></li><li class="dish"><h3><span class="t">Session 9</span> <span class="y">2001</span></h3>
+<p class="desc">An asbestos crew cleans out an abandoned asylum while tape nine plays on.</p>
+<p class="meta"><span>Brad Anderson</span><span class="rt">100′</span></p></li><li class="dish"><h3><span class="t">The Descent</span> <span class="y">2005</span></h3>
+<p class="desc">Six women, an uncharted Appalachian cave, and the crawlers below.</p>
+<p class="meta"><span>Neil Marshall</span><span class="rt">99′</span></p></li><li class="dish"><h3><span class="t">1408</span> <span class="y">2007</span></h3>
+<p class="desc">John Cusack checks into the one hotel room nobody checks out of.</p>
+<p class="meta"><span>Mikael Håfström</span><span class="rt">104′</span></p></li><li class="dish"><h3><span class="t">Kill List</span> <span class="y">2011</span></h3>
+<p class="desc">Two hitmen, a contract that turns strange, and a lantern-lit finale.</p>
+<p class="meta"><span>Ben Wheatley</span><span class="rt">95′</span></p></li><li class="dish"><h3><span class="t">Bone Tomahawk</span> <span class="y">2015</span></h3>
+<p class="desc">Kurt Russell leads a posse into the desert. Slow-cooked, then very rare.</p>
+<p class="meta"><span>S. Craig Zahler</span><span class="rt">132′</span></p></li><li class="dish"><h3><span class="t">The Hollow</span> <span class="y">2015</span></h3>
+<p class="desc">Three sisters, a storm-cut island, and an old witch-burning curse.</p>
+<p class="meta"><span>Sheldon Wilson</span><span class="rt">90′</span></p></li><li class="dish"><h3><span class="t">A Dark Song</span> <span class="y">2016</span></h3>
+<p class="desc">A grieving mother and an occultist seal themselves in a Welsh house for months of ritual.</p>
+<p class="meta"><span>Liam Gavin</span><span class="rt">100′</span></p></li><li class="dish"><h3><span class="t">Satan&#x27;s Slaves</span> <span class="y">2017</span></h3>
+<p class="desc">A dead mother&#x27;s bell keeps ringing in an Indonesian family home.</p>
+<p class="meta"><span>Joko Anwar</span><span class="rt">106′</span></p></li><li class="dish"><h3><span class="t">Mandy</span> <span class="y">2018</span></h3>
+<p class="desc">Nicolas Cage, a cult, and a hand-forged axe, in a psychedelic reduction.</p>
+<p class="meta"><span>Panos Cosmatos</span><span class="rt">122′</span></p></li><li class="dish"><h3><span class="t">Caveat</span> <span class="y">2021</span></h3>
+<p class="desc">A drifter in a chained harness minds an island house and a drumming toy rabbit.</p>
+<p class="meta"><span>Damian McCarthy</span><span class="rt">88′</span></p></li><li class="dish"><h3><span class="t">Barbarian</span> <span class="y">2022</span></h3>
+<p class="desc">A double-booked Detroit rental with a very deep basement.</p>
+<p class="meta"><span>Zach Cregger</span><span class="rt">103′</span></p></li><li class="dish"><h3><span class="t">Exhuma</span> <span class="y">2024</span></h3>
+<p class="desc">Korean shamans and a geomancer unearth a grave that should stay closed.</p>
+<p class="meta"><span>Jang Jae-hyun</span><span class="rt">134′</span></p></li><li class="dish"><h3><span class="t">Oddity</span> <span class="y">2024</span></h3>
+<p class="desc">A blind clairvoyant brings a wooden mannequin to her sister&#x27;s house.</p>
+<p class="meta"><span>Damian McCarthy</span><span class="rt">98′</span></p></li><li class="dish"><h3><span class="t">Starve Acre</span> <span class="y">2024</span></h3>
+<p class="desc">A 1970s Yorkshire couple, a dead oak, and a hare that comes back.</p>
+<p class="meta"><span>Daniel Kokotajlo</span><span class="rt">98′</span></p></li></ul></section>
+  <footer class="foot">
+    <div class="ornament" aria-hidden="true">✦</div>
+    <p>Each dish lists its director, and its running time in minutes where a price would be.</p>
+    <p class="small">Coperto: una ciotola di popcorn</p>
+  </footer>
+</main>

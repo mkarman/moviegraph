@@ -1,0 +1,389 @@
+<title>Movie Graph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one-screen console. Filters rail | force graph | "if you liked" panel. Stacks on phones. */
+:root {
+  --bg: #eceef2; --surface: #ffffff; --ink: #1a1f2b; --muted: #5d6577; --line: #d4d8e0;
+  --accent: #c2410c; --accent-soft: #fbe3d6; --edge: rgba(26,31,43,.16);
+  --g1:#d9480f; --g2:#1c7ed6; --g3:#7048e8; --g4:#2b8a3e; --g5:#c2255c; --g6:#e8a200; --g7:#0c8599; --g8:#8f6a3a; --g9:#868e96;
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, monospace;
+  --r: 6px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11141b; --surface: #191d26; --ink: #e6e8ee; --muted: #9aa1b1; --line: #2a3040;
+  --accent: #f28a4f; --accent-soft: #3a2418; --edge: rgba(230,232,238,.14);
+  --g1:#ff8a4c; --g2:#5aa9f0; --g3:#a08bff; --g4:#5fc46f; --g5:#f06595; --g6:#f5c542; --g7:#3bc9db; --g8:#c9a46b; --g9:#8b93a1;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11141b; --surface: #191d26; --ink: #e6e8ee; --muted: #9aa1b1; --line: #2a3040;
+  --accent: #f28a4f; --accent-soft: #3a2418; --edge: rgba(230,232,238,.14);
+  --g1:#ff8a4c; --g2:#5aa9f0; --g3:#a08bff; --g4:#5fc46f; --g5:#f06595; --g6:#f5c542; --g7:#3bc9db; --g8:#c9a46b; --g9:#8b93a1;
+  color-scheme: dark }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--font-body); }
+.app { height: 100%; display: grid; grid-template-columns: 250px minmax(0,1fr) 330px; grid-template-rows: auto minmax(0,1fr); }
+header { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
+h1 { font: 400 30px/1 var(--font-display); margin: 0; letter-spacing: .01em; }
+.counts { font: 12px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; }
+.banner { font-size: 12px; background: var(--accent-soft); color: var(--ink); padding: 3px 9px; border-radius: 99px; }
+aside, .detail { overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 18px; }
+aside { border-right: 1px solid var(--line); }
+.detail { border-left: 1px solid var(--line); background: var(--surface); }
+.label { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; margin-bottom: 6px; display: flex; justify-content: space-between; }
+.label output { font-family: var(--font-data); letter-spacing: 0; text-transform: none; color: var(--ink); font-weight: 400; }
+input[type=search] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); color: var(--ink); font: inherit; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip { border: 1px solid var(--line); background: transparent; color: var(--ink); border-radius: 99px; padding: 3px 9px 3px 7px; font: 12px var(--font-body); cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+.chip .dot { width: 8px; height: 8px; border-radius: 50%; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toggles { display: flex; flex-direction: column; gap: 6px; }
+.toggles label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.toggles input { accent-color: var(--accent); }
+.swatch { width: 18px; height: 0; border-top: 2px solid; }
+.link { background: none; border: 0; padding: 0; color: var(--accent); font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.stage { position: relative; min-width: 0; min-height: 0; }
+canvas { display: block; width: 100%; height: 100%; cursor: grab; touch-action: none; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 6px 9px; font-size: 12px; max-width: 240px; box-shadow: 0 4px 14px rgba(0,0,0,.12); }
+.tip b { font-weight: 600; }
+.hint { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: var(--muted); }
+.legend { position: absolute; right: 10px; top: 10px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 10px; max-width: 60%; font-size: 11px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 4px; }
+.legend i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.pick h2 { font: 400 28px/1.1 var(--font-display); margin: 0 0 4px; text-wrap: balance; }
+.meta { font: 12px var(--font-data); color: var(--muted); }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 13px; margin-top: 10px; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; }
+ol.recs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+ol.recs li { border-top: 1px solid var(--line); padding: 9px 0; display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; cursor: pointer; }
+ol.recs li:hover .t { color: var(--accent); }
+ol.recs .t { font-weight: 500; }
+ol.recs .s { font: 12px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+ol.recs .why { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+ol.recs .why em { font-style: normal; color: var(--ink); }
+.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--surface); padding: 7px 12px; border-radius: var(--r); font: 500 13px var(--font-body); cursor: pointer; }
+.empty { color: var(--muted); font-size: 13px; }
+.empty h2 { font: 400 24px/1.15 var(--font-display); color: var(--ink); margin: 0 0 6px; }
+.toast { font-size: 12px; color: var(--muted); margin-left: 8px; }
+textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; font: 12px var(--font-data); background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r); }
+@media (max-width: 900px) {
+  html, body { height: auto; }
+  .app { display: flex; flex-direction: column; height: auto; }
+  aside { border-right: 0; border-bottom: 1px solid var(--line); overflow: visible; }
+  .stage { height: 65svh; min-height: 360px; }
+  .detail { border-left: 0; border-top: 1px solid var(--line); overflow: visible; }
+  .legend { max-width: 75%; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <header>
+    <h1>Movie Graph</h1>
+    <span class="counts" id="counts"></span>
+    <span class="banner" id="banner" hidden>Sample data: a hand-entered subset of your watch history until the TMDb enrichment lands</span>
+  </header>
+
+  <aside aria-label="Filters">
+    <div>
+      <div class="label"><label for="q">Find a movie</label></div>
+      <input type="search" id="q" list="titles" placeholder="Type a title you liked" autocomplete="off">
+      <datalist id="titles"></datalist>
+    </div>
+    <div>
+      <div class="label"><span>Genres</span><button class="link" id="clearGenres" type="button">Clear</button></div>
+      <div class="chips" id="genres"></div>
+    </div>
+    <div>
+      <div class="label"><label for="yearMin">Released</label><output id="yearOut"></output></div>
+      <input type="range" id="yearMin" aria-label="Earliest year">
+      <input type="range" id="yearMax" aria-label="Latest year">
+    </div>
+    <div>
+      <div class="label"><label for="ratingMin">Min TMDb rating</label><output id="ratingOut"></output></div>
+      <input type="range" id="ratingMin" min="0" max="9" step="0.5" value="0">
+    </div>
+    <div>
+      <div class="label"><span>Connect movies by</span></div>
+      <div class="toggles">
+        <label><input type="checkbox" id="byDirector" checked> Same director <span class="swatch" style="border-color:var(--ink)"></span></label>
+        <label><input type="checkbox" id="byCast" checked> Shared cast <span class="swatch" style="border-color:var(--g2)"></span></label>
+        <label><input type="checkbox" id="byGenre" checked> Similar genres <span class="swatch" style="border-color:var(--muted);border-top-style:dashed"></span></label>
+      </div>
+    </div>
+    <button class="link" id="reset" type="button">Reset all filters</button>
+  </aside>
+
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="Graph of movies linked by shared directors, cast and genres"></canvas>
+    <div class="legend" id="legend"></div>
+    <div class="hint">Drag to pan, scroll or pinch to zoom, click a movie to see what's like it.</div>
+    <div class="tip" id="tip" hidden></div>
+  </div>
+
+  <section class="detail" id="detail" aria-live="polite"></section>
+</div>
+
+<script type="application/json" id="movie-data">/*__MOVIE_DATA__*/</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<script>
+(() => {
+const raw = JSON.parse(document.getElementById('movie-data').textContent);
+const MOVIES = raw.movies.filter(m => m.title);
+document.getElementById('banner').hidden = !raw.sample;
+
+const $ = id => document.getElementById(id);
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const byId = new Map(MOVIES.map(m => [m.id, m]));
+
+// Genre palette: most common genres get their own color, the rest share grey.
+const genreCount = d3.rollups(MOVIES.flatMap(m => m.genres || []), v => v.length, g => g).sort((a, b) => b[1] - a[1]);
+const ALL_GENRES = genreCount.map(d => d[0]);
+const colorVar = new Map(ALL_GENRES.map((g, i) => [g, i < 8 ? `--g${i + 1}` : '--g9']));
+const primary = m => (m.genres && m.genres[0]) || 'Unknown';
+
+// ---------- state ----------
+const years = MOVIES.map(m => m.year).filter(Boolean);
+const Y0 = d3.min(years) || 1900, Y1 = d3.max(years) || 2030;
+const state = { genres: new Set(), yearMin: Y0, yearMax: Y1, ratingMin: 0, by: { director: true, cast: true, genre: true }, selected: null };
+
+// ---------- similarity ----------
+const W = { director: 3, cast: 1, genre: 1.5 };
+function overlap(a = [], b = []) { const s = new Set(a); return b.filter(x => s.has(x)); }
+function similarity(a, b) {
+  const dirs = state.by.director ? overlap(a.directors, b.directors) : [];
+  const cast = state.by.cast ? overlap(a.cast, b.cast).filter(n => !dirs.includes(n)) : [];
+  let gShared = [], jac = 0;
+  if (state.by.genre && a.genres && b.genres) {
+    gShared = overlap(a.genres, b.genres);
+    jac = gShared.length / new Set([...a.genres, ...b.genres]).size;
+  }
+  const score = W.director * dirs.length + W.cast * Math.min(cast.length, 3) + W.genre * jac;
+  const kind = dirs.length ? 'director' : cast.length ? 'cast' : 'genre';
+  return { score, dirs, cast, genres: gShared, kind };
+}
+const passes = m =>
+  (!state.genres.size || (m.genres || []).some(g => state.genres.has(g))) &&
+  (!m.year || (m.year >= state.yearMin && m.year <= state.yearMax)) &&
+  (m.rating == null || m.rating >= state.ratingMin);
+
+function similarTo(m, pool) {
+  return pool.filter(o => o !== m).map(o => ({ o, ...similarity(m, o) }))
+    .filter(r => r.score > 0).sort((a, b) => b.score - a.score || (b.o.rating || 0) - (a.o.rating || 0));
+}
+
+// ---------- graph ----------
+const canvas = $('cv'), ctx = canvas.getContext('2d'), stage = $('stage');
+let nodes = [], links = [], transform = d3.zoomIdentity, width = 0, height = 0, hover = null;
+const pos = new Map(); // keep positions stable across filter changes
+const sim = d3.forceSimulation().alphaDecay(0.03)
+  .force('charge', d3.forceManyBody().strength(-40).distanceMax(320))
+  .force('x', d3.forceX().strength(0.04)).force('y', d3.forceY().strength(0.04))
+  .force('collide', d3.forceCollide(d => radius(d) + 2))
+  .on('tick', draw);
+const radius = d => 3 + Math.max(0, (d.m.rating || 5) - 4) * 1.3;
+
+function rebuild() {
+  const pool = MOVIES.filter(passes);
+  nodes = pool.map(m => { const p = pos.get(m.id) || { x: (Math.random() - .5) * 400, y: (Math.random() - .5) * 400 }; const n = { id: m.id, m, x: p.x, y: p.y, vx: 0, vy: 0 }; return n; });
+  const nIdx = new Map(nodes.map(n => [n.id, n]));
+  // Each movie keeps its strongest links: all director/cast ties, plus up to 3 genre-only ties.
+  const seen = new Set(); links = [];
+  for (const n of nodes) {
+    const ranked = similarTo(n.m, pool);
+    let genreOnly = 0;
+    for (const r of ranked) {
+      if (r.kind === 'genre') { if (r.score < 1.0 || genreOnly >= 3) continue; genreOnly++; }
+      const key = [n.id, r.o.id].sort().join('|');
+      if (seen.has(key)) continue; seen.add(key);
+      links.push({ source: n, target: nIdx.get(r.o.id), kind: r.kind, score: r.score });
+    }
+  }
+  sim.nodes(nodes);
+  sim.force('link', d3.forceLink(links).distance(l => l.kind === 'genre' ? 70 : 34).strength(l => l.kind === 'genre' ? 0.08 : 0.5));
+  sim.alpha(0.8).restart();
+  if (state.selected && !nIdx.has(state.selected)) state.selected = null;
+  $('counts').textContent = `${pool.length} of ${MOVIES.length} movies · ${links.length} connections`;
+  renderDetail(pool);
+}
+
+function resize() {
+  const r = stage.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+  width = r.width; height = r.height;
+  canvas.width = width * dpr; canvas.height = height * dpr;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  draw();
+}
+
+function neighborsOf(id) {
+  const s = new Set([id]);
+  for (const l of links) { if (l.source.id === id) s.add(l.target.id); if (l.target.id === id) s.add(l.source.id); }
+  return s;
+}
+
+function draw() {
+  for (const n of nodes) pos.set(n.id, { x: n.x, y: n.y });
+  const C = { edge: css('--edge'), accent: css('--accent'), cast: css('--g2'), ink: css('--ink'), bg: css('--bg'), muted: css('--muted') };
+  ctx.save(); ctx.clearRect(0, 0, width, height);
+  ctx.translate(width / 2 + transform.x, height / 2 + transform.y); ctx.scale(transform.k, transform.k);
+  const focus = state.selected || (hover && hover.id);
+  const hood = focus ? neighborsOf(focus) : null;
+  for (const l of links) {
+    const on = hood && (l.source.id === focus || l.target.id === focus);
+    ctx.globalAlpha = hood && !on ? 0.12 : 1;
+    ctx.strokeStyle = l.kind === 'director' ? C.ink : l.kind === 'cast' ? C.cast : C.edge;
+    ctx.lineWidth = (l.kind === 'genre' ? 0.7 : 1.4) * (on ? 1.8 : 1) / Math.sqrt(transform.k);
+    ctx.setLineDash(l.kind === 'genre' ? [3, 3] : []);
+    ctx.beginPath(); ctx.moveTo(l.source.x, l.source.y); ctx.lineTo(l.target.x, l.target.y); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  for (const n of nodes) {
+    ctx.globalAlpha = hood && !hood.has(n.id) ? 0.18 : 1;
+    ctx.fillStyle = css(colorVar.get(primary(n.m)) || '--g9');
+    ctx.beginPath(); ctx.arc(n.x, n.y, radius(n), 0, Math.PI * 2); ctx.fill();
+    if (n.id === state.selected) { ctx.lineWidth = 2.5 / transform.k; ctx.strokeStyle = C.ink; ctx.stroke(); }
+  }
+  ctx.globalAlpha = 1;
+  ctx.font = `${12 / transform.k}px "IBM Plex Sans", system-ui, sans-serif`;
+  ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+  for (const n of nodes) {
+    const show = hood ? hood.has(n.id) : transform.k > 1.7;
+    if (!show) continue;
+    const y = n.y - radius(n) - 4 / transform.k;
+    ctx.lineWidth = 3 / transform.k; ctx.strokeStyle = C.bg; ctx.strokeText(n.m.title, n.x, y);
+    ctx.fillStyle = C.ink; ctx.fillText(n.m.title, n.x, y);
+  }
+  ctx.restore();
+}
+
+const zoom = d3.zoom().scaleExtent([0.3, 6]).on('zoom', e => { transform = e.transform; draw(); });
+d3.select(canvas).call(zoom).on('dblclick.zoom', null);
+function nodeAt(ev) {
+  const [px, py] = d3.pointer(ev, canvas);
+  const x = (px - width / 2 - transform.x) / transform.k, y = (py - height / 2 - transform.y) / transform.k;
+  const n = sim.find(x, y, 14 / transform.k);
+  return n && Math.hypot(n.x - x, n.y - y) <= radius(n) + 6 / transform.k ? n : null;
+}
+canvas.addEventListener('mousemove', ev => {
+  const n = nodeAt(ev); const tip = $('tip');
+  canvas.style.cursor = n ? 'pointer' : 'grab';
+  if (n !== hover) { hover = n; draw(); }
+  if (!n) { tip.hidden = true; return; }
+  const m = n.m, [px, py] = d3.pointer(ev, stage);
+  tip.innerHTML = `<b>${esc(m.title)}</b> <span class="meta">${m.year || ''}</span><br>${esc((m.genres || []).join(', '))}${m.directors && m.directors.length ? `<br><span class="meta">dir. ${esc(m.directors.join(', '))}</span>` : ''}`;
+  tip.hidden = false;
+  tip.style.left = Math.min(px + 14, width - 250) + 'px'; tip.style.top = (py + 14) + 'px';
+});
+canvas.addEventListener('mouseleave', () => { hover = null; $('tip').hidden = true; draw(); });
+canvas.addEventListener('click', ev => { const n = nodeAt(ev); select(n ? n.id : null); });
+
+function select(id, center) {
+  state.selected = id; draw();
+  renderDetail(MOVIES.filter(passes));
+  if (id && center) {
+    const n = nodes.find(n => n.id === id);
+    if (n) d3.select(canvas).transition().duration(500).call(zoom.transform, d3.zoomIdentity.translate(-n.x * 1.8, -n.y * 1.8).scale(1.8));
+  }
+}
+
+// ---------- detail panel ----------
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function why(r) {
+  const parts = [];
+  if (r.dirs.length) parts.push(`Same director: <em>${esc(r.dirs.join(', '))}</em>`);
+  if (r.cast.length) parts.push(`Shared cast: <em>${esc(r.cast.slice(0, 3).join(', '))}</em>`);
+  if (r.genres.length) parts.push(`Genres: ${esc(r.genres.join(', '))}`);
+  return parts.join(' · ');
+}
+let lastRecs = [];
+function renderDetail(pool) {
+  const el = $('detail');
+  const m = state.selected && byId.get(state.selected);
+  if (!m) {
+    const top = [...pool].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 6);
+    el.innerHTML = `<div class="empty"><h2>Pick a movie you liked</h2>Click any dot, or type a title on the left. You'll get the movies from your history that share its director, cast or genres, ranked by how much they have in common.</div>
+      <div><div class="label"><span>Highest rated in this view</span></div><ol class="recs">${top.map(o => `<li data-id="${esc(o.id)}"><span class="t">${esc(o.title)}</span><span class="s">${o.rating ?? '–'}</span><span class="why">${o.year || ''} · ${esc((o.genres || []).join(', '))}</span></li>`).join('')}</ol></div>`;
+  } else {
+    lastRecs = similarTo(m, pool).slice(0, 12);
+    el.innerHTML = `<div class="pick"><div class="label"><span>Selected</span><button class="link" type="button" id="clearSel">Clear</button></div>
+      <h2>${esc(m.title)}</h2><div class="meta">${m.year || ''}${m.rating != null ? ` · ${m.rating} / 10 TMDb` : ''}${m.runtime ? ` · ${m.runtime} min` : ''}</div>
+      <dl class="facts">${m.directors?.length ? `<dt>Director</dt><dd>${esc(m.directors.join(', '))}</dd>` : ''}${m.cast?.length ? `<dt>Cast</dt><dd>${esc(m.cast.slice(0, 5).join(', '))}</dd>` : ''}${m.genres?.length ? `<dt>Genres</dt><dd>${esc(m.genres.join(', '))}</dd>` : ''}</dl></div>
+      <div><div class="label"><span>If you liked this, try</span><span>match</span></div>
+      ${lastRecs.length ? `<ol class="recs">${lastRecs.map(r => `<li data-id="${esc(r.o.id)}"><span class="t">${esc(r.o.title)} <span class="meta">${r.o.year || ''}</span></span><span class="s">${r.score.toFixed(1)}</span><span class="why">${why(r)}</span></li>`).join('')}</ol>`
+        : `<p class="empty">Nothing in the current filters shares a director, cast member or genre with this one. Widen the filters or turn on more connection types.</p>`}</div>
+      ${lastRecs.length ? `<div><button class="btn" id="copy" type="button">Copy as a message to a friend</button><span class="toast" id="toast"></span></div>` : ''}`;
+    $('clearSel').onclick = () => select(null);
+    if ($('copy')) $('copy').onclick = copyRecs;
+  }
+  el.querySelectorAll('li[data-id]').forEach(li => li.onclick = () => select(li.dataset.id, true));
+}
+function copyRecs() {
+  const m = byId.get(state.selected);
+  const lines = lastRecs.slice(0, 6).map(r => {
+    const bits = [];
+    if (r.dirs.length) bits.push(`same director, ${r.dirs.join(' & ')}`);
+    else if (r.cast.length) bits.push(`also has ${r.cast.slice(0, 2).join(' & ')}`);
+    else if (r.genres.length) bits.push(r.genres.join('/').toLowerCase());
+    return `- ${r.o.title}${r.o.year ? ` (${r.o.year})` : ''}: ${bits.join('')}`;
+  });
+  const text = `Since you liked ${m.title}, try:\n${lines.join('\n')}`;
+  const done = msg => { $('toast').textContent = msg; };
+  navigator.clipboard?.writeText(text).then(() => done('Copied'), fallback) ?? fallback();
+  function fallback() {
+    const ta = document.createElement('textarea'); ta.className = 'copyfallback'; ta.value = text; ta.readOnly = true;
+    $('toast').replaceWith(ta); ta.select(); ta.focus();
+  }
+}
+
+// ---------- controls ----------
+const gEl = $('genres');
+for (const [g, c] of genreCount) {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', 'false');
+  b.innerHTML = `<span class="dot" style="background:var(${colorVar.get(g)})"></span>${esc(g)} <span class="meta">${c}</span>`;
+  b.onclick = () => { state.genres.has(g) ? state.genres.delete(g) : state.genres.add(g); b.setAttribute('aria-pressed', state.genres.has(g)); rebuild(); };
+  gEl.appendChild(b);
+}
+$('clearGenres').onclick = () => { state.genres.clear(); gEl.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', 'false')); rebuild(); };
+$('legend').innerHTML = ALL_GENRES.slice(0, 8).map(g => `<span><i style="background:var(${colorVar.get(g)})"></i>${esc(g)}</span>`).join('') + (ALL_GENRES.length > 8 ? `<span><i style="background:var(--g9)"></i>Other</span>` : '');
+
+for (const id of ['yearMin', 'yearMax']) { const el = $(id); el.min = Y0; el.max = Y1; el.step = 1; }
+$('yearMin').value = Y0; $('yearMax').value = Y1;
+const syncYears = () => {
+  let a = +$('yearMin').value, b = +$('yearMax').value; if (a > b) [a, b] = [b, a];
+  state.yearMin = a; state.yearMax = b; $('yearOut').textContent = `${a} – ${b}`;
+};
+syncYears();
+let t; const debounced = () => { clearTimeout(t); t = setTimeout(rebuild, 120); };
+$('yearMin').oninput = $('yearMax').oninput = () => { syncYears(); debounced(); };
+const syncRating = () => { state.ratingMin = +$('ratingMin').value; $('ratingOut').textContent = state.ratingMin ? `${state.ratingMin}+` : 'any'; };
+syncRating(); $('ratingMin').oninput = () => { syncRating(); debounced(); };
+for (const [id, k] of [['byDirector', 'director'], ['byCast', 'cast'], ['byGenre', 'genre']]) $(id).onchange = e => { state.by[k] = e.target.checked; rebuild(); };
+
+$('titles').innerHTML = [...MOVIES].sort((a, b) => a.title.localeCompare(b.title)).map(m => `<option value="${esc(m.title)}">`).join('');
+$('q').addEventListener('input', e => {
+  const v = e.target.value.trim().toLowerCase(); if (!v) return;
+  const m = MOVIES.find(m => m.title.toLowerCase() === v); if (!m) return;
+  if (!passes(m)) { resetFilters(false); }
+  select(m.id, true);
+});
+function resetFilters(rerender = true) {
+  state.genres.clear(); gEl.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  $('yearMin').value = Y0; $('yearMax').value = Y1; syncYears(); $('ratingMin').value = 0; syncRating();
+  rebuild();
+}
+$('reset').onclick = () => resetFilters();
+
+new ResizeObserver(resize).observe(stage);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
+new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+resize(); rebuild();
+// Open on a well-connected example so the first view shows what the tool does.
+const starter = MOVIES.find(m => m.title === 'The Endless') || MOVIES[0];
+if (starter) setTimeout(() => select(starter.id), 0);
+})();
+</script>
