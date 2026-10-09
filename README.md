@@ -38,6 +38,13 @@ titles in `graph/sample_movies.json`.
 | `docs/enrichment.md` | Why TMDB, match-rate results and known gaps |
 | `data/` | Your local data. Gitignored except its README |
 
+## Website (GitHub Pages)
+
+`.github/workflows/pages.yml` publishes `site/` on every push to `main`, plus `graph.html` built at deploy time.
+It uses `site/movies.json` if that file is committed, and otherwise the sample data. A Pages site is public,
+so committing `site/movies.json` publishes your movie list. Turn Pages on once under
+Settings → Pages → Build and deployment → Source: **GitHub Actions**.
+
 ## Privacy and secrets
 
 - Your watch history and everything derived from it (`data/*`, `graph/movie-graph.html`) is gitignored.

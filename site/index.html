@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MovieGraph</title>
+<style>
+:root{--bg:#f7f6f3;--fg:#1d1c1a;--muted:#6b6862;--card:#fff;--line:#e2dfd8;--accent:#8a1c2b}
+@media (prefers-color-scheme:dark){:root{--bg:#141312;--fg:#ece9e4;--muted:#a19d96;--card:#1e1d1b;--line:#33312e;--accent:#e0717f}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,sans-serif;padding:48px 16px}
+main{max-width:640px;margin:0 auto}
+h1{font-size:2rem;margin:0 0 4px}
+p{color:var(--muted);margin:0 0 32px}
+a.card{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px;margin-bottom:12px;color:inherit;text-decoration:none}
+a.card:hover{border-color:var(--accent)}
+a.card strong{display:block;color:var(--accent);font-size:1.1rem}
+</style>
+</head>
+<body>
+<main>
+<h1>MovieGraph</h1>
+<p>Movies from a watch history, linked by director, cast and genre, for picking what to recommend.</p>
+<a class="card" href="graph.html"><strong>Movie graph</strong>Filter by genre and rating, and follow shared directors and cast.</a>
+</main>
+</body>
+</html>
