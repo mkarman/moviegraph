@@ -38,6 +38,18 @@ titles in `graph/sample_movies.json`.
 | `docs/enrichment.md` | Why TMDB, match-rate results and known gaps |
 | `data/` | Your local data. Gitignored except its README |
 
+## Menu mode
+
+The **Menu mode** button in the graph's header swaps the "if you liked" panel for a menu builder:
+
+- Drag a movie onto one of four courses, or click it and pick a course. **Lasso select** grabs a whole cluster.
+- **Suggest courses** pre-fills every visible, untagged movie from simple genre, runtime and rating rules, shown as
+  dashed rings until you accept them. Filter first (say, Horror) to suggest for just that slice.
+- Courses are neutral roles (opener, second, main, finish). The house style (Italian, French, diner, izakaya) only
+  renames them and changes the printed card in **Preview menu**, so switching styles never means re-tagging.
+- Tags belong to a named menu, so the same film can open one menu and headline another. Menus are saved in the
+  browser's local storage, and **Copy as text** gives a plain list to send to a friend.
+
 ## Website (GitHub Pages)
 
 `.github/workflows/pages.yml` publishes `site/` on every push to `main`, plus `graph.html` built at deploy time.

@@ -1,3 +1,7 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Movie Graph</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
@@ -23,7 +27,7 @@
   --g1:#ff8a4c; --g2:#5aa9f0; --g3:#a08bff; --g4:#5fc46f; --g5:#f06595; --g6:#f5c542; --g7:#3bc9db; --g8:#c9a46b; --g9:#8b93a1;
   color-scheme: dark }
 html, body { height: 100%; }
-body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--font-body); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 var(--font-body); }
 .app { height: 100%; display: grid; grid-template-columns: 250px minmax(0,1fr) 330px; grid-template-rows: auto minmax(0,1fr); }
 header { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 18px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
 h1 { font: 400 30px/1 var(--font-display); margin: 0; letter-spacing: .01em; }
@@ -71,13 +75,87 @@ ol.recs .why em { font-style: normal; color: var(--ink); }
 .empty h2 { font: 400 24px/1.15 var(--font-display); color: var(--ink); margin: 0 0 6px; }
 .toast { font-size: 12px; color: var(--muted); margin-left: 8px; }
 textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; font: 12px var(--font-data); background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: var(--r); }
+/* ---------- menu mode ---------- */
+:root { --c1:#3f7f4f; --c2:#b7791f; --c3:#a8323e; --c4:#6f4a9a; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --c1:#6fbf80; --c2:#e3a84d; --c3:#ec6f7b; --c4:#b38ce0; } }
+:root[data-theme="dark"] { --c1:#6fbf80; --c2:#e3a84d; --c3:#ec6f7b; --c4:#b38ce0; }
+[hidden] { display: none !important; }
+.modeswitch { margin-left: auto; }
+.btn.ghost, .modeswitch { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn.ghost[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.modeswitch[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.detail, .menu-panel { grid-column: 3; grid-row: 2; }
+.menu-panel { border-left: 1px solid var(--line); background: var(--surface); overflow-y: auto; padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.menu-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.menu-row select, .menu-row input[type=text] { flex: 1; min-width: 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); color: var(--ink); font: inherit; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.seg button { flex: 1; border: 0; border-right: 1px solid var(--line); background: none; color: var(--ink); padding: 6px 4px; font: 12px var(--font-body); cursor: pointer; }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.small { padding: 5px 9px; font-size: 12px; }
+.bin { min-width: 0; border: 1px solid var(--line); border-top: 4px solid var(--cc); border-radius: var(--r); padding: 9px 10px; display: grid; gap: 6px; transition: background .12s, border-color .12s; }
+.bin.over { border-color: var(--cc); background: color-mix(in srgb, var(--cc) 12%, var(--surface)); }
+.bin-head { display: flex; align-items: baseline; gap: 8px; }
+.bin-head h3 { font: 400 20px/1.1 var(--font-display); margin: 0; }
+.bin-head .role { font: 10px var(--font-data); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.bin-head .n { margin-left: auto; font: 12px var(--font-data); color: var(--muted); font-variant-numeric: tabular-nums; }
+.bin .sub { font-size: 12px; color: var(--muted); margin: -3px 0 0; }
+.tickets { display: flex; flex-wrap: wrap; gap: 5px; min-height: 26px; min-width: 0; max-height: 190px; overflow-y: auto; }
+.tickets:empty::after { content: "Drag movies here, or click one and pick this course"; font-size: 12px; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--r); padding: 4px 8px; width: 100%; }
+.ticket { display: inline-flex; align-items: center; gap: 2px; max-width: 100%; border: 1px solid var(--line); border-left: 3px solid var(--cc); border-radius: 4px; padding: 2px 2px 2px 7px; font-size: 12px; background: var(--bg); cursor: grab; touch-action: none; user-select: none; }
+.ticket span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ticket button { border: 0; background: none; color: var(--muted); padding: 0 4px; font-size: 14px; line-height: 1; cursor: pointer; }
+.dragghost { position: fixed; z-index: 60; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12px; padding: 4px 10px; border-radius: 99px; transform: translate(-50%, -150%); white-space: nowrap; }
+.floater { position: absolute; left: 12px; bottom: 34px; width: min(320px, calc(100% - 24px)); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.14); display: grid; gap: 6px; }
+.floater h2 { font: 400 22px/1.1 var(--font-display); margin: 0; padding-right: 20px; }
+.floater .x { position: absolute; right: 8px; top: 6px; border: 0; background: none; color: var(--muted); font-size: 18px; cursor: pointer; }
+.floater .chip[aria-pressed="true"] { background: var(--cc); border-color: var(--cc); color: var(--surface); }
+.selbar { position: absolute; left: 12px; right: 12px; bottom: 34px; background: var(--ink); color: var(--bg); border-radius: var(--r); padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
+.selbar button { border: 0; border-radius: 4px; padding: 4px 9px; background: var(--bg); color: var(--ink); font: 12px var(--font-body); cursor: pointer; }
+.selbar .clear { background: none; color: var(--bg); margin-left: auto; text-decoration: underline; }
+.menu-foot { font-size: 12px; color: var(--muted); margin: 0; }
+/* preview: each house style is a fixed printed card, the same in light and dark */
+.overlay { position: fixed; inset: 0; z-index: 50; background: rgba(8,10,14,.6); overflow: auto; padding: 24px 16px; display: grid; justify-items: center; align-content: start; gap: 10px; }
+.overlay .bar { width: min(780px, 100%); display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #fff; font-size: 13px; }
+.overlay .bar button { background: #fff; color: #111; border: 0; border-radius: var(--r); padding: 6px 12px; font: 500 13px var(--font-body); cursor: pointer; }
+.mcard { width: min(780px, 100%); box-sizing: border-box; padding: clamp(24px,6vw,60px) clamp(18px,6vw,64px); }
+.mcard .mast { text-align: center; display: grid; gap: 6px; justify-items: center; }
+.mcard h1 { margin: 0; line-height: 1.02; text-wrap: balance; }
+.mcard .course { margin-top: 30px; }
+.mcard h2 { margin: 0; text-align: center; }
+.mcard .csub { text-align: center; margin: 4px 0 14px; font-style: italic; }
+.mcard ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px 30px; }
+.mcard li { display: grid; gap: 2px; min-width: 0; }
+.mcard .dt { display: flex; gap: 8px; align-items: baseline; }
+.mcard .lead { flex: 1; border-bottom: 1px dotted currentColor; opacity: .4; transform: translateY(-3px); min-width: 12px; }
+.mcard .dm { font-size: .85em; opacity: .75; }
+.mcard .none { text-align: center; opacity: .6; font-style: italic; }
+.mcard.italian { background: #f4f0e8; color: #231a1a; font: 1.08rem/1.35 "Cormorant Garamond", Garamond, Georgia, serif; outline: 1px solid #a98a4f; outline-offset: -12px; }
+.mcard.italian h1 { font: italic 400 clamp(2.2rem,6vw,3.6rem)/1 "Bodoni Moda", Didot, Georgia, serif; }
+.mcard.italian h2 { font: 400 1.7rem "Bodoni Moda", Didot, Georgia, serif; letter-spacing: .22em; text-transform: uppercase; color: #8a1c2b; }
+.mcard.italian .tag { letter-spacing: .3em; text-transform: uppercase; color: #8a1c2b; font-size: .8rem; }
+.mcard.french { background: #fbfaf7; color: #1f2a44; font: 1.1rem/1.35 "Cormorant Garamond", Garamond, Georgia, serif; border-block: 10px solid #1f2a44; }
+.mcard.french h1 { font: 500 clamp(2.2rem,6vw,3.4rem)/1 "Cormorant Garamond", Georgia, serif; font-variant: small-caps; letter-spacing: .08em; }
+.mcard.french h2 { font-variant: small-caps; letter-spacing: .14em; font-weight: 500; font-size: 1.6rem; border-bottom: 1px solid #1f2a44; padding-bottom: 4px; width: max-content; max-width: 100%; margin: 0 auto; }
+.mcard.french .tag { font-style: italic; }
+.mcard.diner { background: #fffaf0; color: #1c1c1c; font: .92rem/1.4 "IBM Plex Mono", ui-monospace, monospace; border: 6px solid #c8102e; box-shadow: inset 0 0 0 4px #fffaf0, inset 0 0 0 6px #1c1c1c; }
+.mcard.diner h1 { font: 400 clamp(2rem,6vw,3.2rem)/1 "Alfa Slab One", Rockwell, Georgia, serif; color: #c8102e; text-transform: uppercase; }
+.mcard.diner h2 { font: 400 1.15rem "Alfa Slab One", Rockwell, Georgia, serif; background: #1c1c1c; color: #fffaf0; padding: 4px 14px; width: max-content; max-width: 100%; margin: 0 auto; text-transform: uppercase; letter-spacing: .06em; }
+.mcard.diner .tag { text-transform: uppercase; letter-spacing: .2em; font-size: .75rem; }
+.mcard.diner .csub { font-style: normal; }
+.mcard.izakaya { background: #1b1714; color: #efe6d8; font: 1rem/1.45 "Shippori Mincho", "Yu Mincho", Georgia, serif; }
+.mcard.izakaya h1 { font-weight: 700; font-size: clamp(2rem,6vw,3.2rem); letter-spacing: .06em; }
+.mcard.izakaya h2 { font-weight: 700; font-size: 1.4rem; color: #e0573d; letter-spacing: .1em; }
+.mcard.izakaya .tag { color: #c9b89c; letter-spacing: .3em; font-size: .8rem; }
+.mcard.izakaya .jp { font-size: .8em; color: #c9b89c; margin-left: 8px; }
 @media (max-width: 900px) {
   html, body { height: auto; }
   .app { display: flex; flex-direction: column; height: auto; }
   aside { border-right: 0; border-bottom: 1px solid var(--line); overflow: visible; }
   .stage { height: 65svh; min-height: 360px; }
-  .detail { border-left: 0; border-top: 1px solid var(--line); overflow: visible; }
+  .detail, .menu-panel { border-left: 0; border-top: 1px solid var(--line); overflow: visible; }
   .legend { max-width: 75%; }
+  .floater, .selbar { bottom: 52px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
@@ -87,6 +165,7 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
     <h1>Movie Graph</h1>
     <span class="counts" id="counts"></span>
     <span class="banner" id="banner" hidden>Sample data: a hand-entered subset of your watch history until the TMDb enrichment lands</span>
+    <button class="btn modeswitch small" id="menuMode" type="button" aria-pressed="false">Menu mode</button>
   </header>
 
   <aside aria-label="Filters">
@@ -122,11 +201,42 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
   <div class="stage" id="stage">
     <canvas id="cv" aria-label="Graph of movies linked by shared directors, cast and genres"></canvas>
     <div class="legend" id="legend"></div>
-    <div class="hint">Drag to pan, scroll or pinch to zoom, click a movie to see what's like it.</div>
+    <div class="hint" id="hint">Drag to pan, scroll or pinch to zoom, click a movie to see what's like it.</div>
     <div class="tip" id="tip" hidden></div>
+    <div class="floater" id="tagCard" hidden></div>
+    <div class="selbar" id="selbar" hidden></div>
   </div>
 
   <section class="detail" id="detail" aria-live="polite"></section>
+
+  <section class="menu-panel" id="menuPanel" aria-label="Menu builder" hidden>
+    <div>
+      <div class="label"><label for="menuPick">Menu</label><span><button class="link" id="newMenu" type="button">New</button> · <button class="link" id="delMenu" type="button">Delete</button></span></div>
+      <div class="menu-row"><select id="menuPick"></select></div>
+      <div class="menu-row" style="margin-top:6px"><input type="text" id="menuName" aria-label="Menu name" autocomplete="off"></div>
+    </div>
+    <div>
+      <div class="label"><span>House style</span></div>
+      <div class="seg" id="houseStyle" role="group" aria-label="House style"></div>
+    </div>
+    <div class="menu-row">
+      <button class="btn ghost small" id="lassoBtn" type="button" aria-pressed="false">Lasso select</button>
+      <button class="btn ghost small" id="suggestBtn" type="button">Suggest courses</button>
+      <button class="btn ghost small" id="acceptBtn" type="button" hidden>Accept suggestions</button>
+    </div>
+    <div id="bins" style="display:contents"></div>
+    <div class="menu-row">
+      <button class="btn small" id="previewBtn" type="button">Preview menu</button>
+      <button class="btn ghost small" id="copyMenu" type="button">Copy as text</button>
+      <span class="toast" id="menuToast"></span>
+    </div>
+    <p class="menu-foot">Each menu keeps its own courses, so a film can open one night and headline the next. Switching house style only renames the courses. Menus are saved in this browser.</p>
+  </section>
+</div>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="bar"><span id="ovLabel"></span><button type="button" id="closePreview">Close</button></div>
+  <article class="mcard" id="mcard"></article>
 </div>
 
 <script type="application/json" id="movie-data">/*__MOVIE_DATA__*/</script>
@@ -150,6 +260,7 @@ const primary = m => (m.genres && m.genres[0]) || 'Unknown';
 // ---------- state ----------
 const years = MOVIES.map(m => m.year).filter(Boolean);
 const Y0 = d3.min(years) || 1900, Y1 = d3.max(years) || 2030;
+const menu = { on: false, lasso: false, lassoPts: null, picked: new Set(), card: null, sug: {} };
 const state = { genres: new Set(), yearMin: Y0, yearMax: Y1, ratingMin: 0, by: { director: true, cast: true, genre: true }, selected: null };
 
 // ---------- similarity ----------
@@ -231,7 +342,7 @@ function draw() {
   const C = { edge: css('--edge'), accent: css('--accent'), cast: css('--g2'), ink: css('--ink'), bg: css('--bg'), muted: css('--muted') };
   ctx.save(); ctx.clearRect(0, 0, width, height);
   ctx.translate(width / 2 + transform.x, height / 2 + transform.y); ctx.scale(transform.k, transform.k);
-  const focus = state.selected || (hover && hover.id);
+  const focus = (!menu.on && state.selected) || (hover && hover.id);
   const hood = focus ? neighborsOf(focus) : null;
   for (const l of links) {
     const on = hood && (l.source.id === focus || l.target.id === focus);
@@ -246,26 +357,39 @@ function draw() {
     ctx.globalAlpha = hood && !hood.has(n.id) ? 0.18 : 1;
     ctx.fillStyle = css(colorVar.get(primary(n.m)) || '--g9');
     ctx.beginPath(); ctx.arc(n.x, n.y, radius(n), 0, Math.PI * 2); ctx.fill();
-    if (n.id === state.selected) { ctx.lineWidth = 2.5 / transform.k; ctx.strokeStyle = C.ink; ctx.stroke(); }
+    if (n.id === state.selected && !menu.on) { ctx.lineWidth = 2.5 / transform.k; ctx.strokeStyle = C.ink; ctx.stroke(); }
+    if (menu.on) drawCourseRing(n);
   }
   ctx.globalAlpha = 1;
   ctx.font = `${12 / transform.k}px "IBM Plex Sans", system-ui, sans-serif`;
   ctx.textAlign = 'center'; ctx.lineJoin = 'round';
   for (const n of nodes) {
-    const show = hood ? hood.has(n.id) : transform.k > 1.7;
+    const show = hood ? hood.has(n.id) : transform.k > 1.7 || (menu.on && (menu.picked.has(n.id) || (menu.labelTags && cur().tags[n.id])));
     if (!show) continue;
     const y = n.y - radius(n) - 4 / transform.k;
     ctx.lineWidth = 3 / transform.k; ctx.strokeStyle = C.bg; ctx.strokeText(n.m.title, n.x, y);
     ctx.fillStyle = C.ink; ctx.fillText(n.m.title, n.x, y);
   }
+  if (menu.on && menu.lassoPts) {
+    ctx.globalAlpha = 1; ctx.setLineDash([4 / transform.k, 3 / transform.k]); ctx.lineWidth = 1.2 / transform.k;
+    ctx.strokeStyle = C.accent; ctx.fillStyle = C.accent;
+    ctx.beginPath(); menu.lassoPts.forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath();
+    ctx.stroke(); ctx.globalAlpha = .08; ctx.fill(); ctx.setLineDash([]);
+  }
   ctx.restore();
 }
 
-const zoom = d3.zoom().scaleExtent([0.3, 6]).on('zoom', e => { transform = e.transform; draw(); });
+// In menu mode a press on a movie (or anywhere, with lasso on) belongs to the menu tools, not to panning.
+const zoom = d3.zoom().scaleExtent([0.3, 6])
+  .filter(ev => (!ev.ctrlKey || ev.type === 'wheel') && !ev.button && (ev.type === 'wheel' || !menu.on || (!menu.lasso && !nodeAt(ev))))
+  .on('zoom', e => { transform = e.transform; draw(); });
 d3.select(canvas).call(zoom).on('dblclick.zoom', null);
+function toGraph(ev) {
+  const [px, py] = d3.pointer(ev.touches ? ev.touches[0] : ev, canvas);
+  return [(px - width / 2 - transform.x) / transform.k, (py - height / 2 - transform.y) / transform.k];
+}
 function nodeAt(ev) {
-  const [px, py] = d3.pointer(ev, canvas);
-  const x = (px - width / 2 - transform.x) / transform.k, y = (py - height / 2 - transform.y) / transform.k;
+  const [x, y] = toGraph(ev);
   const n = sim.find(x, y, 14 / transform.k);
   return n && Math.hypot(n.x - x, n.y - y) <= radius(n) + 6 / transform.k ? n : null;
 }
@@ -280,7 +404,7 @@ canvas.addEventListener('mousemove', ev => {
   tip.style.left = Math.min(px + 14, width - 250) + 'px'; tip.style.top = (py + 14) + 'px';
 });
 canvas.addEventListener('mouseleave', () => { hover = null; $('tip').hidden = true; draw(); });
-canvas.addEventListener('click', ev => { const n = nodeAt(ev); select(n ? n.id : null); });
+canvas.addEventListener('click', ev => { if (menu.on) return; const n = nodeAt(ev); select(n ? n.id : null); });
 
 function select(id, center) {
   state.selected = id; draw();
@@ -339,6 +463,231 @@ function copyRecs() {
     $('toast').replaceWith(ta); ta.select(); ta.focus();
   }
 }
+
+// ---------- menu mode ----------
+// Movies are tagged with four neutral course roles. A house style only renames them, so switching from
+// Italian to diner never means re-tagging. Tags belong to a named menu, saved in this browser.
+const COURSES = [
+  { key: 'open', role: 'Opener', color: '--c1' },
+  { key: 'mid', role: 'Second', color: '--c2' },
+  { key: 'main', role: 'Main', color: '--c3' },
+  { key: 'sweet', role: 'Finish', color: '--c4' },
+];
+const courseOf = k => COURSES.find(c => c.key === k);
+const HOUSES = {
+  italian: { label: 'Italian', tag: 'Osteria · Menu degustazione',
+    c: { open: ['Antipasti', 'Light, playful bites to start.'], mid: ['Primi', 'Something to settle into.'], main: ['Secondi', 'The heavy plates.'], sweet: ['Dolci', 'Something lovely to end on.'] },
+    meta: m => [m.directors?.[0], m.runtime && `${m.runtime}′`].filter(Boolean).join(' · ') },
+  french: { label: 'French', tag: 'Menu dégustation',
+    c: { open: ['Amuse-bouche', 'Une bouchée pour ouvrir l’appétit.'], mid: ['Entrée', 'Pour entrer en matière.'], main: ['Plat principal', 'Le cœur du repas.'], sweet: ['Dessert', 'Une douceur pour finir.'] },
+    meta: m => [m.directors?.[0], m.runtime && `${Math.floor(m.runtime / 60)}h${String(m.runtime % 60).padStart(2, '0')}`].filter(Boolean).join(' · ') },
+  diner: { label: 'Diner', tag: 'Open all night',
+    c: { open: ['Starters', 'Quick, cheap, a little greasy.'], mid: ['Short Orders', 'Made to order.'], main: ['Blue Plate Specials', 'The big plate. Bring an appetite.'], sweet: ['Pie & Shakes', 'Save room.'] },
+    meta: m => m.directors?.[0] || '', price: m => m.runtime ? '$' + (m.runtime / 100).toFixed(2) : '' },
+  izakaya: { label: 'Izakaya', tag: '居酒屋',
+    c: { open: ['Otsumami', 'Small bites with the first drink.'], mid: ['Kozara', 'Little dishes.'], main: ['Yakimono', 'Over the coals.'], sweet: ['Shime', 'The closing bowl.'] },
+    jp: { open: 'おつまみ', mid: '小皿', main: '焼物', sweet: '〆' },
+    meta: m => [m.directors?.[0], m.runtime && `${m.runtime}分`].filter(Boolean).join(' · ') },
+};
+const STORE = 'moviegraph-menus-v1';
+function loadMenus() {
+  try { const s = JSON.parse(localStorage.getItem(STORE)); if (s && s.menus && Object.keys(s.menus).length) return s; } catch (e) {}
+  return { active: 'm1', menus: { m1: { name: 'Movie night', house: 'italian', tags: {} } } };
+}
+const book = loadMenus();
+if (!book.menus[book.active]) book.active = Object.keys(book.menus)[0];
+const saveMenus = () => { try { localStorage.setItem(STORE, JSON.stringify(book)); } catch (e) {} };
+const cur = () => book.menus[book.active];
+Object.assign(menu, { sug: {} });
+
+function drawCourseRing(n) {
+  const k = cur().tags[n.id], s = !k && menu.sug[n.id];
+  const r = radius(n) + 3 / transform.k;
+  if (k || s) {
+    ctx.save(); ctx.globalAlpha = Math.max(ctx.globalAlpha, .6);
+    ctx.strokeStyle = css(courseOf(k || s).color); ctx.lineWidth = (k ? 3 : 2) / transform.k;
+    ctx.setLineDash(k ? [] : [3 / transform.k, 2 / transform.k]);
+    ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  }
+  if (menu.picked.has(n.id)) {
+    ctx.save(); ctx.globalAlpha = 1; ctx.strokeStyle = css('--ink'); ctx.lineWidth = 1.5 / transform.k;
+    ctx.beginPath(); ctx.arc(n.x, n.y, r + 3 / transform.k, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  }
+}
+
+function setMenuMode(on) {
+  menu.on = on; $('menuMode').setAttribute('aria-pressed', on);
+  $('detail').hidden = on; $('menuPanel').hidden = !on;
+  $('hint').textContent = on ? 'Drag a movie onto a course, or click it to pick one. Lasso grabs a whole cluster.' : "Drag to pan, scroll or pinch to zoom, click a movie to see what's like it.";
+  if (!on) { menu.picked.clear(); menu.lasso = false; $('lassoBtn').setAttribute('aria-pressed', 'false'); closeTagCard(); }
+  else hover = null;
+  renderMenu(); draw();
+}
+$('menuMode').onclick = () => setMenuMode(!menu.on);
+
+// panel
+function renderMenu() {
+  const m = cur(), h = HOUSES[m.house] || HOUSES.italian;
+  $('menuPick').innerHTML = Object.entries(book.menus).map(([id, x]) => `<option value="${esc(id)}"${id === book.active ? ' selected' : ''}>${esc(x.name || 'Untitled menu')}</option>`).join('');
+  if (document.activeElement !== $('menuName')) $('menuName').value = m.name;
+  $('houseStyle').innerHTML = Object.entries(HOUSES).map(([k, v]) => `<button type="button" data-h="${k}" aria-pressed="${k === m.house}">${v.label}</button>`).join('');
+  $('houseStyle').querySelectorAll('button').forEach(b => b.onclick = () => { m.house = b.dataset.h; saveMenus(); renderMenu(); });
+  $('bins').innerHTML = COURSES.map(c => {
+    const items = MOVIES.filter(x => m.tags[x.id] === c.key).sort((a, b) => a.title.localeCompare(b.title));
+    return `<section class="bin" data-course="${c.key}" style="--cc:var(${c.color})"><div class="bin-head"><h3>${h.c[c.key][0]}</h3><span class="role">${c.role}</span><span class="n">${items.length}</span></div>
+      <p class="sub">${esc(h.c[c.key][1])}</p><div class="tickets">${items.map(x => `<div class="ticket" data-id="${esc(x.id)}" style="--cc:var(${c.color})"><span>${esc(x.title)}</span><button type="button" aria-label="Remove ${esc(x.title)}">×</button></div>`).join('')}</div></section>`;
+  }).join('');
+  $('bins').querySelectorAll('.ticket').forEach(t => {
+    t.querySelector('button').onclick = e => { e.stopPropagation(); tag([t.dataset.id], null); };
+    t.addEventListener('pointerdown', e => { if (e.target.tagName !== 'BUTTON') dragTicket(e, t.dataset.id); });
+  });
+  $('acceptBtn').hidden = !Object.keys(menu.sug).length;
+  menu.labelTags = Object.keys(m.tags).length <= 40; // label tagged movies while the menu is small enough to read
+  renderSelbar(); renderTagCard();
+  if (!$('overlay').hidden) renderCard();
+}
+function tag(ids, course) {
+  const m = cur();
+  for (const id of ids) { if (course) m.tags[id] = course; else delete m.tags[id]; delete menu.sug[id]; }
+  saveMenus(); renderMenu(); draw();
+}
+$('menuPick').onchange = e => { book.active = e.target.value; menu.sug = {}; saveMenus(); renderMenu(); draw(); };
+$('menuName').oninput = e => { cur().name = e.target.value; saveMenus(); const o = $('menuPick').selectedOptions[0]; if (o) o.textContent = e.target.value || 'Untitled menu'; };
+$('newMenu').onclick = () => {
+  let i = Object.keys(book.menus).length + 1; while (book.menus['m' + i]) i++;
+  book.menus['m' + i] = { name: `Menu ${i}`, house: cur().house, tags: {} }; book.active = 'm' + i; menu.sug = {};
+  saveMenus(); renderMenu(); draw(); $('menuName').select();
+};
+let delTimer;
+$('delMenu').onclick = () => {
+  const b = $('delMenu');
+  if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'Confirm delete'; delTimer = setTimeout(() => { delete b.dataset.armed; b.textContent = 'Delete'; }, 3000); return; }
+  clearTimeout(delTimer); delete b.dataset.armed; b.textContent = 'Delete';
+  delete book.menus[book.active];
+  if (!Object.keys(book.menus).length) book.menus.m1 = { name: 'Movie night', house: 'italian', tags: {} };
+  book.active = Object.keys(book.menus)[0]; menu.sug = {}; saveMenus(); renderMenu(); draw();
+};
+
+// dragging: from the graph or from another course; drop on a course to tag, anywhere else on the panel to untag
+const ghost = document.createElement('div'); ghost.className = 'dragghost'; ghost.hidden = true; document.body.appendChild(ghost);
+const binAt = (x, y) => { const el = document.elementsFromPoint(x, y).find(e => e.classList?.contains('bin')); return el ? el.dataset.course : null; };
+const markOver = k => document.querySelectorAll('.bin').forEach(b => b.classList.toggle('over', b.dataset.course === k));
+function dragging(ev, label, onDrop, onTap) {
+  const sx = ev.clientX, sy = ev.clientY; let moved = false;
+  const mv = e => {
+    if (!moved && Math.hypot(e.clientX - sx, e.clientY - sy) < 5) return;
+    moved = true; ghost.textContent = label; ghost.hidden = false; ghost.style.left = e.clientX + 'px'; ghost.style.top = e.clientY + 'px';
+    markOver(binAt(e.clientX, e.clientY));
+  };
+  const up = e => {
+    removeEventListener('pointermove', mv); removeEventListener('pointerup', up); removeEventListener('pointercancel', up);
+    ghost.hidden = true; markOver(null);
+    if (moved && e.type === 'pointerup') onDrop(binAt(e.clientX, e.clientY), e); else if (!moved) onTap?.();
+  };
+  addEventListener('pointermove', mv); addEventListener('pointerup', up); addEventListener('pointercancel', up);
+}
+function dragTicket(e, id) {
+  e.preventDefault();
+  dragging(e, byId.get(id).title, (k, ev) => {
+    if (k) tag([id], k);
+    else if (!ev.target.closest?.('.menu-panel')) tag([id], null);
+  }, () => openTagCard(id));
+}
+canvas.addEventListener('pointerdown', ev => {
+  if (!menu.on || ev.button) return;
+  const n = nodeAt(ev);
+  if (menu.lasso) {
+    // with lasso on, press-and-drag draws a lasso and a tap toggles one movie
+    menu.lassoPts = [toGraph(ev)]; menu.lassoStart = n; canvas.setPointerCapture(ev.pointerId);
+  } else if (n) {
+    const ids = menu.picked.has(n.id) ? [...menu.picked] : [n.id];
+    $('tip').hidden = true;
+    dragging(ev, ids.length > 1 ? `${ids.length} movies` : n.m.title, k => { if (k) { tag(ids, k); menu.picked.clear(); renderSelbar(); draw(); } },
+      () => openTagCard(n.id));
+  } else closeTagCard();
+});
+canvas.addEventListener('pointermove', ev => { if (menu.lassoPts) { menu.lassoPts.push(toGraph(ev)); draw(); } });
+const endLasso = () => {
+  if (!menu.lassoPts) return;
+  if (menu.lassoPts.length > 3) { for (const n of nodes) if (d3.polygonContains(menu.lassoPts, [n.x, n.y])) menu.picked.add(n.id); }
+  else if (menu.lassoStart) { const id = menu.lassoStart.id; menu.picked.has(id) ? menu.picked.delete(id) : menu.picked.add(id); }
+  menu.lassoPts = null; menu.lassoStart = null; renderSelbar(); draw();
+};
+canvas.addEventListener('pointerup', endLasso); canvas.addEventListener('pointercancel', endLasso);
+$('lassoBtn').onclick = () => {
+  menu.lasso = !menu.lasso; $('lassoBtn').setAttribute('aria-pressed', menu.lasso);
+  if (!menu.lasso) { menu.picked.clear(); renderSelbar(); draw(); }
+};
+function renderSelbar() {
+  const el = $('selbar'), h = HOUSES[cur().house];
+  el.hidden = !menu.on || !menu.picked.size; if (el.hidden) return;
+  el.innerHTML = `<b>${menu.picked.size} selected</b> Send to ${COURSES.map(c => `<button type="button" data-c="${c.key}">${h.c[c.key][0]}</button>`).join('')}<button type="button" data-c="">Remove</button><button type="button" class="clear">Clear</button>`;
+  el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { tag([...menu.picked], b.dataset.c || null); menu.picked.clear(); renderSelbar(); draw(); });
+  el.querySelector('.clear').onclick = () => { menu.picked.clear(); renderSelbar(); draw(); };
+}
+
+// click-to-tag card: the path that also works on phones
+function openTagCard(id) { menu.card = id; renderTagCard(); }
+function closeTagCard() { menu.card = null; renderTagCard(); }
+function renderTagCard() {
+  const el = $('tagCard'), m = menu.on && menu.card && byId.get(menu.card);
+  el.hidden = !m || menu.picked.size > 0; if (el.hidden) return;
+  const k = cur().tags[m.id], h = HOUSES[cur().house];
+  el.innerHTML = `<button type="button" class="x" aria-label="Close">×</button><h2>${esc(m.title)}</h2>
+    <div class="meta">${[m.year, m.directors?.[0], m.runtime && `${m.runtime} min`, m.rating != null && `${m.rating} TMDb`].filter(Boolean).map(esc).join(' · ')}</div>
+    <div class="chips">${COURSES.map(c => `<button type="button" class="chip" data-c="${c.key}" aria-pressed="${k === c.key}" style="--cc:var(${c.color})"><span class="dot" style="background:var(${c.color})"></span>${h.c[c.key][0]}</button>`).join('')}</div>`;
+  el.querySelector('.x').onclick = closeTagCard;
+  el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => tag([m.id], k === b.dataset.c ? null : b.dataset.c));
+}
+
+// suggestions: simple rules over what's visible after filtering, shown as dashed rings until accepted
+function suggestCourse(m) {
+  const g = m.genres || [], has = x => g.includes(x);
+  if (has('Family') || has('Animation') || has('Romance') || has('Music')) return 'sweet';
+  if (has('Comedy') || (m.runtime && m.runtime < 92)) return 'open';
+  if ((m.rating || 0) >= 7.3 || (m.runtime || 0) >= 120 || has('War') || has('History')) return 'main';
+  return 'mid';
+}
+$('suggestBtn').onclick = () => {
+  menu.sug = {}; for (const n of nodes) if (!cur().tags[n.id]) menu.sug[n.id] = suggestCourse(n.m);
+  renderMenu(); draw();
+};
+$('acceptBtn').onclick = () => { Object.assign(cur().tags, menu.sug); menu.sug = {}; saveMenus(); renderMenu(); draw(); };
+
+// preview and export
+const courseItems = (m, k) => MOVIES.filter(x => m.tags[x.id] === k).sort((a, b) => (a.year || 0) - (b.year || 0));
+let fontsLoaded = false;
+function renderCard() {
+  const m = cur(), h = HOUSES[m.house];
+  $('ovLabel').textContent = `${h.label} house style`;
+  const card = $('mcard'); card.className = 'mcard ' + m.house;
+  card.innerHTML = `<div class="mast"><span class="tag">${esc(h.tag)}</span><h1>${esc(m.name || 'Untitled menu')}</h1></div>` + COURSES.map(c => {
+    const items = courseItems(m, c.key);
+    return `<section class="course"><h2>${h.c[c.key][0]}${h.jp ? `<span class="jp">${h.jp[c.key]}</span>` : ''}</h2><p class="csub">${esc(h.c[c.key][1])}</p>` +
+      (items.length ? `<ul>${items.map(x => `<li><div class="dt"><span>${esc(x.title)}</span><span class="lead"></span><span>${h.price ? h.price(x) : (x.year || '')}</span></div><div class="dm">${esc(h.meta(x))}</div></li>`).join('')}</ul>` : `<p class="none">Nothing on this course yet.</p>`) + `</section>`;
+  }).join('');
+}
+$('previewBtn').onclick = () => {
+  if (!fontsLoaded) {
+    fontsLoaded = true; const l = document.createElement('link'); l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;1,400&family=Cormorant+Garamond:wght@500&family=Alfa+Slab+One&family=Shippori+Mincho:wght@500;700&display=swap';
+    document.head.appendChild(l);
+  }
+  renderCard(); $('overlay').hidden = false; $('closePreview').focus();
+};
+$('closePreview').onclick = () => { $('overlay').hidden = true; };
+$('overlay').addEventListener('click', e => { if (e.target === $('overlay')) $('overlay').hidden = true; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('overlay').hidden = true; closeTagCard(); } });
+$('copyMenu').onclick = () => {
+  const m = cur(), h = HOUSES[m.house];
+  const text = [m.name || 'Untitled menu', ...COURSES.flatMap(c => {
+    const items = courseItems(m, c.key); if (!items.length) return [];
+    return ['', h.c[c.key][0].toUpperCase(), ...items.map(x => `- ${x.title}${x.year ? ` (${x.year})` : ''}`)];
+  })].join('\n');
+  const done = msg => { $('menuToast').textContent = msg; };
+  navigator.clipboard?.writeText(text).then(() => done('Copied'), fallback) ?? fallback();
+  function fallback() { const ta = document.createElement('textarea'); ta.className = 'copyfallback'; ta.value = text; ta.readOnly = true; $('menuToast').replaceWith(ta); ta.id = 'menuToast'; ta.select(); }
+};
 
 // ---------- controls ----------
 const gEl = $('genres');
