@@ -1,0 +1,13 @@
+# Personal viewing data stays local: the Amazon export and everything derived from it
+data/*
+!data/README.md
+graph/movie-graph.html
+
+# Secrets
+.env
+*.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
