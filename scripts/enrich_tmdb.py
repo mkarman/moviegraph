@@ -38,7 +38,8 @@ KEY = os.environ.get("TMDB_API_KEY")
 # Amazon decorations that TMDB titles never carry
 NOISE = re.compile(r"\s*[\(\[](4K UHD|UHD|HD|English Dubbed|English Subtitled|Dubbed|Subtitled|Extended Edition|Unrated|Director'?s Cut)[\)\]]", re.I)
 # Same decorations without brackets, at the end of the title ("Step Brothers Unrated", "Eurotrip - Unrated")
-TRAILING = re.compile(r"\s*[-:]?\s*\b(Unrated|Extended Version|Extended Edition|Director'?s Cut|The Original Classic|Remastered)\s*$", re.I)
+TRAILING = re.compile(r"\s*[-:]?\s*\b(Unrated|Extended Version|Extended Edition|Director'?s Cut|The Original Classic|Remastered|"
+                      r"Original Theatrical Version)\s*$", re.I)
 # "John Carpenter's The Ward", "William Shakespeare's Romeo + Juliet"
 POSSESSIVE = re.compile(r"^[A-Z][\w.]+(?: [A-Z][\w.]+)?['\u2019]s\s+")
 # Titles a search cannot get right on its own: Amazon title -> (query, year), a TMDB id, or None for "not on TMDB"
@@ -55,7 +56,34 @@ OVERRIDES = {
     # Mike: the 2001 horror film. A plain search fuzzy-matches "Thirteen Erotic Ghosts" (2002)
     "Thirteen Ghosts": ("Thir13en Ghosts", 2001),
     "Thir13en Ghosts": ("Thir13en Ghosts", 2001),
+    # Found in the 2026-10 run with the Netflix export: wrong fuzzy, prefix or before-colon matches
+    "Star Wars: A New Hope": ("Star Wars", 1977),
+    "Star Wars: Episode V: The Empire Strikes Back": ("The Empire Strikes Back", 1980),
+    "Star Wars: Episode VI: Return of the Jedi": ("Return of the Jedi", 1983),
+    "Star Wars: Episode IV: A New Hope": ("Star Wars", 1977),
+    "Star Wars: The Empire Strikes Back": ("The Empire Strikes Back", 1980),
+    "Star Wars: Return of the Jedi": ("Return of the Jedi", 1983),
+    "Indiana Jones and the Raiders of the Lost Ark": ("Raiders of the Lost Ark", 1981),
+    "Superman: The Movie": ("Superman", 1978),
+    "The X-Files: Fight the Future": ("The X Files", 1998),
+    "Ghostbusters: Answer the Call": ("Ghostbusters", 2016),
+    "Left Behind: The Movie": ("Left Behind", 2000),
+    "Super Fast": ("Superfast!", 2015),
+    "Evil Bong": ("Evil Bong", 2006),
+    "National Lampoon's Animal House": ("Animal House", 1978),
+    "John Carpenter's They Live": ("They Live", 1988),
+    "Tim Burton's The Nightmare Before Christmas": ("The Nightmare Before Christmas", 1993),
+    "William Shakespeare's A Midsummer Night's Dream": ("A Midsummer Night's Dream", 1999),
+    "Nature: A Sloth Named Velcro": None,  # a PBS Nature episode
+    # Real films the search missed
+    "Nausicaä of the Valley of the Wind": ("Nausicaä of the Valley of the Wind", 1984),
+    "Trollhunter": ("Trolljegeren", 2010),
+    "The House of Small Cubes": ("La Maison en Petits Cubes", 2008),
+    "Rebel Moon — Part One": ("Rebel Moon - Part One: A Child of Fire", 2023),
+    "Rebel Moon — Part Two": ("Rebel Moon - Part Two: The Scargiver", 2024),
 }
+# Words that mark a documentary or spin-off about a film rather than the film itself
+ABOUT_A_FILM = re.compile(r"\b(making of|unseen|untold|exposing|behind the|lego|documentary|featurette)\b", re.I)
 YEAR = re.compile(r"\s*\((19|20)(\d\d)\)\s*$")
 NOT_A_MOVIE = re.compile(r"\btrailer\b|^episode \d+\b|\bbonus\b|\bbehind the scenes\b", re.I)
 
@@ -111,13 +139,18 @@ def pick(results, query, year):
     if exact:
         best = max(exact, key=lambda r: r.get("vote_count", 0))
         return best, "exact" if len(exact) == 1 else f"exact, chose most-voted of {len(exact)}"
-    # No exact hit: accept the top result only if the title is close enough
-    top = results[0]
+    # No exact hit: accept the top result only if the title is close enough and isn't a film about the film
+    # ("The Making of 'Superman: The Movie'", "Unseen + Untold: National Lampoon's Animal House")
+    fair = [r for r in results if not ABOUT_A_FILM.search(r.get("title", "")) or ABOUT_A_FILM.search(query)]
+    if not fair:
+        return None, "no confident match"
+    top = fair[0]
     a, b = set(q.split()), set(norm(top.get("title", "")).split())
     if a and len(a & b) / len(a | b) >= 0.6:
         return top, "fuzzy"
-    # Amazon often shortens: "Master And Commander" -> "Master and Commander: The Far Side of the World"
-    longer = [r for r in results if norm(r.get("title", "")).startswith(q + " ")]
+    # Amazon often shortens: "Master And Commander" -> "Master and Commander: The Far Side of the World".
+    # Not for one-word titles, where any longer title qualifies ("Black" -> "Black Panther").
+    longer = [r for r in fair if norm(r.get("title", "")).startswith(q + " ")] if len(a) > 1 else []
     if longer:
         return max(longer, key=lambda r: r.get("vote_count", 0)), "title prefix"
     return None, "no confident match"
@@ -161,9 +194,12 @@ def enrich(m):
     if year:
         params["year"] = year
     hit, how = pick(get("/search/movie", **params).get("results", []), query, year)
-    if not hit and POSSESSIVE.match(query):
+    # "John Carpenter's They Live" is listed as "They Live"; an exact hit without the name beats a fuzzy one with it
+    if POSSESSIVE.match(query) and not (hit and how.startswith("exact")):
         sub = POSSESSIVE.sub("", query)
-        hit, how = pick(get("/search/movie", query=sub).get("results", []), sub, year)
+        sub_hit, sub_how = pick(get("/search/movie", query=sub).get("results", []), sub, year)
+        if sub_hit and (sub_how.startswith("exact") or not hit):
+            hit, how = sub_hit, f"without possessive, {sub_how}"
     if not hit and ":" in query:
         head, tail = (x.strip() for x in query.split(":", 1))
         # "Series: Special" often lists under the part after the colon, but only keep that hit if its
@@ -173,7 +209,9 @@ def enrich(m):
             hit, how = None, "no confident match"
         elif hit:
             how = f"after colon, {how}"
-        if not hit:  # "Highlander: The Movie" -> "Highlander"; exact only, a fuzzy hit here is usually another film
+        # "Highlander: The Movie" -> "Highlander"; exact only, and only when the tail is generic, since
+        # "Ghostbusters: Answer the Call" or "Star Wars: Episode V" is not the film named by the head
+        if not hit and re.fullmatch(r"(the )?movie|the motion picture|original theatrical version", tail, re.I):
             hit, how = pick(get("/search/movie", query=head).get("results", []), head, year)
             if hit and not how.startswith("exact"):
                 hit, how = None, "no confident match"
@@ -232,8 +270,11 @@ def from_cache(cache, m):
     for t in variants:
         r = cache.get(key(t)) if t else None
         # Rows from before the TV check carry no media_type; recheck them if this title's type is in doubt
-        # An override added after the earlier run must replace whatever that run matched
+        # An override added after the earlier run must replace whatever that run matched, and a guess
+        # (fuzzy, prefix, colon split) is retried so improvements to pick() reach it
         if r and m["title"] in OVERRIDES and r.get("status") != "manual override":
+            r = None
+        if r and r.get("matched") and not r.get("status", "").startswith(("exact", "manual override")):
             r = None
         if r and (m.get("verify_type") != "yes" or "media_type" in r):
             tmdb = {k: v for k, v in r.items() if k not in HISTORY and k not in ("id", "amazon_title")}

@@ -166,10 +166,11 @@ class Pipeline(unittest.TestCase):
             enrich_tmdb.get, enrich_tmdb.KEY = get, "test"
             enrich_tmdb.main()
             # A second run reuses every matched title without calling TMDB
+            # A second run reuses exact matches; only the guess (Fear Street, a fuzzy match) is looked up again
             calls = []
-            enrich_tmdb.get = lambda *a, **k: calls.append(a)
+            enrich_tmdb.get = lambda path, **k: calls.append(k.get("query", path)) or get(path, **k)
             enrich_tmdb.main()
-            self.assertEqual(calls, [])
+            self.assertEqual([c for c in calls if not c.startswith("/movie/")], ["Fear Street Part 1: 1994"] * 2)
         finally:
             sys.argv, enrich_tmdb.get, enrich_tmdb.KEY = argv, old_get, old_key
         rows_ = {r["id"]: r for r in json.loads(out.read_text(encoding="utf-8"))}
@@ -236,6 +237,29 @@ class TvCheck(unittest.TestCase):
         self.fake({"Thir13en Ghosts": [{"id": 9378, "title": "Thir13en Ghosts", "release_date": "2001-10-26", "vote_count": 1500}]}, {})
         r = enrich_tmdb.enrich({"id": "thirteen ghosts", "title": "Thirteen Ghosts", "verify_type": "no"})
         self.assertEqual((r["query"], r["status"]), ("Thir13en Ghosts", "manual override"))
+
+    def test_making_of_rejected(self):
+        self.fake({"The Abyss": [{"id": 1, "title": "The Making of 'The Abyss'", "vote_count": 3}]}, {})
+        r = enrich_tmdb.enrich({"id": "abyss", "title": "The Abyss", "verify_type": "no"})
+        self.assertFalse(r["matched"])
+
+    def test_possessive_exact_beats_fuzzy(self):
+        self.fake({"John Carpenter's The Fog": [{"id": 2, "title": "John Carpenter's The Fog Revisited", "vote_count": 5}],
+                   "The Fog": [{"id": 790, "title": "The Fog", "vote_count": 1500}]}, {})
+        r = enrich_tmdb.enrich({"id": "x", "title": "John Carpenter's The Fog", "verify_type": "no"})
+        self.assertTrue(r["status"].startswith("without possessive, exact"), r["status"])
+
+    def test_head_of_colon_needs_generic_tail(self):
+        self.fake({"Ghostbusters": [{"id": 620, "title": "Ghostbusters", "vote_count": 9000}]}, {})
+        r = enrich_tmdb.enrich({"id": "x", "title": "Ghostbusters: Answer the Call (fan cut)", "verify_type": "no"})
+        self.assertFalse(r["matched"])
+        r = enrich_tmdb.enrich({"id": "y", "title": "Ghostbusters: The Movie", "verify_type": "no"})
+        self.assertTrue(r["matched"])
+
+    def test_no_prefix_match_for_one_word(self):
+        self.fake({"Black": [{"id": 284054, "title": "Black Panther", "vote_count": 20000}]}, {})
+        r = enrich_tmdb.enrich({"id": "black", "title": "Black", "verify_type": "no"})
+        self.assertFalse(r["matched"])
 
     def test_amazon_movies_not_checked(self):
         self.fake({"24": [{"id": 5, "title": "24", "vote_count": 3}]},
