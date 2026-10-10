@@ -178,6 +178,18 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
       <div class="label"><span>Genres</span><button class="link" id="clearGenres" type="button">Clear</button></div>
       <div class="chips" id="genres"></div>
     </div>
+    <div id="mineBox" hidden>
+      <div class="label"><span>Your rating</span></div>
+      <div class="chips" id="mine"></div>
+    </div>
+    <div id="srcBox" hidden>
+      <div class="label"><span>Watched on</span></div>
+      <div class="chips" id="srcs"></div>
+    </div>
+    <div id="profBox" hidden>
+      <div class="label"><span>Watched by</span></div>
+      <div class="chips" id="profs"></div>
+    </div>
     <div>
       <div class="label"><label for="yearMin">Released</label><output id="yearOut"></output></div>
       <input type="range" id="yearMin" aria-label="Earliest year">
@@ -261,7 +273,7 @@ const primary = m => (m.genres && m.genres[0]) || 'Unknown';
 const years = MOVIES.map(m => m.year).filter(Boolean);
 const Y0 = d3.min(years) || 1900, Y1 = d3.max(years) || 2030;
 const menu = { on: false, lasso: false, lassoPts: null, picked: new Set(), card: null, sug: {} };
-const state = { genres: new Set(), yearMin: Y0, yearMax: Y1, ratingMin: 0, by: { director: true, cast: true, genre: true }, selected: null };
+const state = { genres: new Set(), mine: new Set(), srcs: new Set(), profs: new Set(), yearMin: Y0, yearMax: Y1, ratingMin: 0, by: { director: true, cast: true, genre: true }, selected: null };
 
 // ---------- similarity ----------
 const W = { director: 3, cast: 1, genre: 1.5 };
@@ -281,11 +293,17 @@ function similarity(a, b) {
 const passes = m =>
   (!state.genres.size || (m.genres || []).some(g => state.genres.has(g))) &&
   (!m.year || (m.year >= state.yearMin && m.year <= state.yearMax)) &&
-  (m.rating == null || m.rating >= state.ratingMin);
+  (m.rating == null || m.rating >= state.ratingMin) &&
+  (!state.mine.size || state.mine.has(m.my_rating || 'unrated')) &&
+  (!state.srcs.size || (m.sources || []).some(s => state.srcs.has(s))) &&
+  // Rows with no profile (Amazon exports have none) stay visible under any profile filter
+  (!state.profs.size || !(m.profiles || []).length || m.profiles.some(p => state.profs.has(p)));
+const MINE = { liked: 'Liked', neutral: 'Neutral', disliked: 'Disliked', unrated: 'Unrated' };
+const SOURCES = { amazon: 'Amazon', netflix: 'Netflix' };
 
 function similarTo(m, pool) {
   return pool.filter(o => o !== m).map(o => ({ o, ...similarity(m, o) }))
-    .filter(r => r.score > 0).sort((a, b) => b.score - a.score || (b.o.rating || 0) - (a.o.rating || 0));
+    .filter(r => r.score > 0).sort((a, b) => b.score - a.score || (b.o.my_score ?? 0.5) - (a.o.my_score ?? 0.5) || (b.o.rating || 0) - (a.o.rating || 0));
 }
 
 // ---------- graph ----------
@@ -435,7 +453,7 @@ function renderDetail(pool) {
   } else {
     lastRecs = similarTo(m, pool).slice(0, 12);
     el.innerHTML = `<div class="pick"><div class="label"><span>Selected</span><button class="link" type="button" id="clearSel">Clear</button></div>
-      <h2>${esc(m.title)}</h2><div class="meta">${m.year || ''}${m.rating != null ? ` · ${m.rating} / 10 TMDb` : ''}${m.runtime ? ` · ${m.runtime} min` : ''}</div>
+      <h2>${esc(m.title)}</h2><div class="meta">${m.year || ''}${m.rating != null ? ` · ${m.rating} / 10 TMDb` : ''}${m.runtime ? ` · ${m.runtime} min` : ''}${m.my_rating ? ` · you: ${MINE[m.my_rating].toLowerCase()}` : ''}</div>
       <dl class="facts">${m.directors?.length ? `<dt>Director</dt><dd>${esc(m.directors.join(', '))}</dd>` : ''}${m.cast?.length ? `<dt>Cast</dt><dd>${esc(m.cast.slice(0, 5).join(', '))}</dd>` : ''}${m.genres?.length ? `<dt>Genres</dt><dd>${esc(m.genres.join(', '))}</dd>` : ''}</dl></div>
       <div><div class="label"><span>If you liked this, try</span><span>match</span></div>
       ${lastRecs.length ? `<ol class="recs">${lastRecs.map(r => `<li data-id="${esc(r.o.id)}"><span class="t">${esc(r.o.title)} <span class="meta">${r.o.year || ''}</span></span><span class="s">${r.score.toFixed(1)}</span><span class="why">${why(r)}</span></li>`).join('')}</ol>`
@@ -697,6 +715,22 @@ for (const [g, c] of genreCount) {
   b.onclick = () => { state.genres.has(g) ? state.genres.delete(g) : state.genres.add(g); b.setAttribute('aria-pressed', state.genres.has(g)); rebuild(); };
   gEl.appendChild(b);
 }
+// Rating, service and profile chips appear only when the data carries them (not in the sample).
+function chipGroup(box, el, set, entries) {
+  const rated = entries.some(([k]) => k !== 'unrated');
+  if (box === 'mineBox' ? !rated : entries.length < 2) return;
+  $(box).hidden = false;
+  for (const [k, label, n] of entries) {
+    const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `${esc(label)} <span class="meta">${n}</span>`;
+    b.onclick = () => { set.has(k) ? set.delete(k) : set.add(k); b.setAttribute('aria-pressed', set.has(k)); rebuild(); };
+    $(el).appendChild(b);
+  }
+}
+const tally = f => d3.rollups(MOVIES.flatMap(f), v => v.length, d => d);
+chipGroup('mineBox', 'mine', state.mine, Object.keys(MINE).map(k => [k, MINE[k], MOVIES.filter(m => (m.my_rating || 'unrated') === k).length]).filter(d => d[2]));
+chipGroup('srcBox', 'srcs', state.srcs, tally(m => m.sources || []).map(([k, n]) => [k, SOURCES[k] || k, n]));
+chipGroup('profBox', 'profs', state.profs, tally(m => m.profiles || []).sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, k, n]));
 $('clearGenres').onclick = () => { state.genres.clear(); gEl.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', 'false')); rebuild(); };
 $('legend').innerHTML = ALL_GENRES.slice(0, 8).map(g => `<span><i style="background:var(${colorVar.get(g)})"></i>${esc(g)}</span>`).join('') + (ALL_GENRES.length > 8 ? `<span><i style="background:var(--g9)"></i>Other</span>` : '');
 
@@ -721,7 +755,8 @@ $('q').addEventListener('input', e => {
   select(m.id, true);
 });
 function resetFilters(rerender = true) {
-  state.genres.clear(); gEl.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', 'false'));
+  for (const s of [state.genres, state.mine, state.srcs, state.profs]) s.clear();
+  for (const id of ['genres', 'mine', 'srcs', 'profs']) $(id).querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', 'false'));
   $('yearMin').value = Y0; $('yearMax').value = Y1; syncYears(); $('ratingMin').value = 0; syncRating();
   rebuild();
 }
