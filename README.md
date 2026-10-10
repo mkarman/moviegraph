@@ -21,7 +21,8 @@ The pipeline has four stages, all plain Python 3 with no third-party packages:
 
 # 2-4. Normalize, enrich and build (needs a free TMDB key: https://www.themoviedb.org/settings/api)
 export TMDB_API_KEY=your-key            # PowerShell: $env:TMDB_API_KEY = "your-key"
-python scripts/run_pipeline.py          # --profile NAME to keep one Netflix profile; open graph/movie-graph.html
+python scripts/run_pipeline.py          # then open graph/movie-graph.html
+# To keep only some Netflix profiles, list them in data/staging/profiles.txt (one per line) or pass --profile NAME
 ```
 
 Each stage also runs on its own: `scripts/normalize.py`, `scripts/enrich_tmdb.py` (`--limit 20` for a quick trial),

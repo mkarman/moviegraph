@@ -19,6 +19,9 @@ Writes to the out folder:
   extras.csv     trailers, clips, and movies only sampled for a few minutes
   ratings.csv    every rating, normalized, with what it was matched to
 
+To always keep only some Netflix profiles, list them one per line in data/staging/profiles.txt (gitignored,
+like everything in data/). --profile overrides the file. Amazon rows have no profile and are always kept.
+
 A title counts as the same movie across sources when its key (lowercase, punctuation stripped, edition tags
 like "(4K UHD)" removed) matches.
 """
@@ -86,7 +89,8 @@ def main():
     ap.add_argument("--staging", type=Path, default=root / "data" / "staging")
     ap.add_argument("--out", type=Path, default=root / "data" / "normalized")
     ap.add_argument("--profile", action="append", default=[],
-                    help="only keep this Netflix profile (repeatable); default keeps every profile")
+                    help="only keep this Netflix profile (repeatable). Default: the names in <staging>/profiles.txt, "
+                         "one per line, or every profile if that file doesn't exist")
     ap.add_argument("--min-minutes", type=float, default=20,
                     help="a Netflix-only movie watched for less than this in total, and not rated, counts as "
                          "sampled and goes to extras.csv (default 20)")
@@ -106,6 +110,11 @@ def main():
     if not views:
         sys.exit("No watch history found in the staging folder.")
 
+    profiles_file = args.staging / "profiles.txt"
+    if not args.profile and profiles_file.exists():
+        args.profile = [ln.strip() for ln in profiles_file.read_text(encoding="utf-8").splitlines() if ln.strip()]
+    if args.profile:
+        print(f"Keeping Netflix profiles: {', '.join(args.profile)}")
     wanted = {p.lower() for p in args.profile}
     if wanted:
         views = [v for v in views if not v["profile"] or v["profile"].lower() in wanted]

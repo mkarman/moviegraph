@@ -122,6 +122,16 @@ class Pipeline(unittest.TestCase):
         self.assertNotIn("kill bill vol 1", got)
         self.assertIn("the menu", got)  # Amazon rows have no profile and are kept
 
+    def test_profiles_file(self):
+        staging = self.tmp / "staging"
+        subprocess.run(["cp", "-r", str(ROOT / "tests/fixtures/staging"), str(staging)], check=True)
+        (staging / "profiles.txt").write_text("Michael\n", encoding="utf-8")
+        out = self.tmp / "michael"
+        run("scripts/normalize.py", "--staging", staging, "--out", out)
+        got = {r["id"] for r in rows(out / "movies.csv")}
+        self.assertIn("kill bill vol 1", got)
+        self.assertNotIn("despicable me 3", got)  # Kris only
+
     def test_enrich_and_graph(self):
         """Fake TMDB through to the graph: sources merge, ratings and history reach the nodes."""
         fake = {

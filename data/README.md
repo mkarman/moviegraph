@@ -9,6 +9,7 @@ data/staging/
   amazon/watch-history.csv          Prime Video watch history page export
   netflix/ViewingActivity.csv       from Netflix "Download your personal information", CONTENT_INTERACTION folder
   netflix/Ratings.csv               same folder; optional, adds your ratings
+  profiles.txt                      optional: Netflix profiles to keep, one name per line (default: all)
 ```
 
 File and folder names don't matter: each CSV is recognized by its columns, and the Netflix .zip can be dropped in
