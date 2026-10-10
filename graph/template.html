@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Movie Graph</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: one-screen console. Filters rail | force graph | "if you liked" panel. Stacks on phones. */
 :root {
@@ -114,9 +114,35 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
 .selbar button { border: 0; border-radius: 4px; padding: 4px 9px; background: var(--bg); color: var(--ink); font: 12px var(--font-body); cursor: pointer; }
 .selbar .clear { background: none; color: var(--bg); margin-left: auto; text-decoration: underline; }
 .menu-foot { font-size: 12px; color: var(--muted); margin: 0; }
+.steps { flex: none; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.steps button { border: 0; background: none; color: var(--muted); padding: 7px 6px; font: 500 12px var(--font-body); cursor: pointer; text-align: left; display: flex; gap: 6px; align-items: center; }
+.steps button + button { border-left: 1px solid var(--line); }
+.steps b { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1px solid currentColor; font: 500 11px var(--font-data); }
+.steps button[aria-pressed="true"] { color: var(--ink); background: var(--accent-soft); }
+.steps button[aria-pressed="true"] b { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.next { align-self: flex-end; }
+.step-sub { font-size: 12px; color: var(--muted); margin: -4px 0 0; }
+.sel { border: 1px solid var(--line); border-radius: var(--r); padding: 9px 10px; display: grid; gap: 7px; }
+.sel.chef { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.sel-head { display: flex; gap: 4px; align-items: center; }
+.sel input[type=text], .sel select { width: 100%; min-width: 0; box-sizing: border-box; padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); color: var(--ink); font: inherit; }
+.sel .sel-name { font: 400 18px/1.1 var(--font-display); }
+.sel .icon { border: 0; background: none; color: var(--muted); padding: 2px 5px; font-size: 16px; line-height: 1; cursor: pointer; flex: none; }
+.sel .star[aria-pressed="true"] { color: var(--accent); }
+.sel ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; counter-reset: c; }
+.sel li { display: flex; gap: 4px; align-items: center; counter-increment: c; }
+.sel li::before { content: counter(c); font: 11px var(--font-data); color: var(--muted); width: 12px; flex: none; }
+.sel li select { border-left: 3px solid var(--cc, var(--line)); }
+.sel .addc { justify-self: start; }
+.sel .tot { display: flex; justify-content: space-between; font: 11px var(--font-data); color: var(--muted); }
+.addsel { border: 1px dashed var(--line); background: none; color: var(--ink); border-radius: var(--r); padding: 9px; font: 500 13px var(--font-body); cursor: pointer; display: flex; gap: 6px; align-items: center; justify-content: center; }
+.addsel span, .sel .addc span { font-size: 16px; line-height: 1; color: var(--accent); }
+.addsel:hover { border-color: var(--accent); }
+.sel-empty { font-size: 12px; color: var(--muted); border: 1px dashed var(--line); border-radius: var(--r); padding: 8px 10px; margin: 0; }
 /* preview: each house style is a fixed printed card, the same in light and dark */
 .overlay { position: fixed; inset: 0; z-index: 50; background: rgba(8,10,14,.6); overflow: auto; padding: 24px 16px; display: grid; justify-items: center; align-content: start; gap: 10px; }
 .overlay .bar { width: min(780px, 100%); display: flex; justify-content: space-between; align-items: center; gap: 8px; color: #fff; font-size: 13px; }
+.overlay .bar .acts { display: flex; gap: 8px; align-items: center; }
 .overlay .bar button { background: #fff; color: #111; border: 0; border-radius: var(--r); padding: 6px 12px; font: 500 13px var(--font-body); cursor: pointer; }
 .mcard { width: min(780px, 100%); box-sizing: border-box; padding: clamp(24px,6vw,60px) clamp(18px,6vw,64px); }
 .mcard .mast { text-align: center; display: grid; gap: 6px; justify-items: center; }
@@ -130,6 +156,43 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
 .mcard .lead { flex: 1; border-bottom: 1px dotted currentColor; opacity: .4; transform: translateY(-3px); min-width: 12px; }
 .mcard .dm { font-size: .85em; opacity: .75; }
 .mcard .none { text-align: center; opacity: .6; font-style: italic; }
+/* Chef's Selections: tasting plates priced at their total running time, Chef's Choice centered between them */
+.mcard { --acc: currentColor; --rule: currentColor; }
+.mcard .selection .it { text-align: center; margin: 0 0 2px; font-style: italic; opacity: .75; }
+.mcard .plates { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 22px; align-items: start; }
+.mcard .plates.withchef { grid-template-columns: minmax(0,1fr) minmax(0,1.3fr) minmax(0,1fr); grid-template-areas: var(--areas); }
+.mcard .plates.solo { grid-template-columns: minmax(0, 360px); justify-content: center; }
+.mcard .plate { min-width: 0; display: grid; gap: .55rem; padding: 1rem .9rem 1.1rem; border-block: 1px solid var(--rule); text-align: center; }
+.mcard .plate h3 { margin: 0; font-size: 1.3rem; line-height: 1.15; color: var(--acc); text-wrap: balance; font-style: italic; font-weight: 400; }
+.mcard .plate ol { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; }
+.mcard .plate li { display: grid; grid-template-columns: minmax(0,1fr) auto; column-gap: .6em; text-align: left; align-items: baseline; }
+.mcard .plate .pc { grid-column: 1 / -1; font-size: .62rem; letter-spacing: .24em; text-transform: uppercase; color: var(--rule); }
+.mcard .plate .pf { min-width: 0; font-size: .85rem; letter-spacing: .06em; text-transform: uppercase; line-height: 1.3; font-weight: 500; }
+.mcard .plate .pf .y { font-style: italic; letter-spacing: 0; text-transform: none; color: var(--acc); font-weight: 400; }
+.mcard .plate .pr { font-size: .82rem; opacity: .75; font-variant-numeric: lining-nums tabular-nums; }
+.mcard .plate .tot { margin: .1rem 0 0; display: flex; justify-content: space-between; align-items: baseline; border-top: 1px dotted var(--rule); padding-top: .5rem; font-size: .7rem; letter-spacing: .22em; text-transform: uppercase; }
+.mcard .plate .tot span:last-child { font-size: 1.15rem; letter-spacing: .02em; color: var(--acc); font-variant-numeric: lining-nums tabular-nums; }
+.mcard .plate .pair { margin: 0; font-style: italic; line-height: 1.3; text-wrap: pretty; }
+.mcard .plate .pair span { display: block; font-style: normal; font-size: .6rem; letter-spacing: .24em; text-transform: uppercase; color: var(--rule); margin-bottom: .2rem; }
+.mcard .plate .badge { margin: 0; font-size: .62rem; letter-spacing: .3em; text-transform: uppercase; color: var(--acc); }
+.mcard .plate .badge::before, .mcard .plate .badge::after { content: "✦"; margin: 0 .6em; color: var(--rule); }
+.mcard .plate.chef { align-self: center; padding: 1.8rem 1.3rem 2rem; border: 1px solid var(--acc); outline: 1px solid var(--rule); outline-offset: 5px; margin: 6px; gap: .75rem; }
+.mcard .plate.chef h3 { font-size: clamp(1.6rem, 3.4vw, 2.1rem); }
+.mcard .plate.chef .tot span:last-child { font-size: 1.4rem; }
+.mcard.italian { --acc: #8a1c2b; --rule: #a98a4f; }
+.mcard.italian .plate h3, .mcard.italian .plate .pc, .mcard.italian .plate .pf, .mcard.italian .plate .tot, .mcard.italian .plate .badge, .mcard.italian .plate .pair span { font-family: "Bodoni Moda", Didot, Georgia, serif; }
+.mcard.italian .plate.chef { background: rgba(138,28,43,.035); }
+.mcard.french { --acc: #1f2a44; --rule: #8c94a8; }
+.mcard.diner { --acc: #c8102e; --rule: #1c1c1c; }
+.mcard.diner .plate h3 { font: 400 1.05rem "Alfa Slab One", Rockwell, Georgia, serif; text-transform: uppercase; font-style: normal; }
+.mcard.diner .plate.chef h3 { font-size: 1.4rem; }
+.mcard.izakaya { --acc: #e0573d; --rule: #c9b89c; }
+.mcard.izakaya .plate h3 { font-style: normal; font-weight: 700; }
+@media (max-width: 640px) {
+  .mcard .plates.withchef { grid-template-columns: minmax(0,1fr); grid-template-areas: none; }
+  .mcard .plates.withchef > .plate { grid-area: auto !important; }
+  .mcard .plates.withchef > .chef { order: -1; }
+}
 .mcard.italian { background: #f4f0e8; color: #231a1a; font: 1.08rem/1.35 "Cormorant Garamond", Garamond, Georgia, serif; outline: 1px solid #a98a4f; outline-offset: -12px; }
 .mcard.italian h1 { font: italic 400 clamp(2.2rem,6vw,3.6rem)/1 "Bodoni Moda", Didot, Georgia, serif; }
 .mcard.italian h2 { font: 400 1.7rem "Bodoni Moda", Didot, Georgia, serif; letter-spacing: .22em; text-transform: uppercase; color: #8a1c2b; }
@@ -232,12 +295,25 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
       <div class="label"><span>House style</span></div>
       <div class="seg" id="houseStyle" role="group" aria-label="House style"></div>
     </div>
-    <div class="menu-row">
-      <button class="btn ghost small" id="lassoBtn" type="button" aria-pressed="false">Lasso select</button>
-      <button class="btn ghost small" id="suggestBtn" type="button">Suggest courses</button>
-      <button class="btn ghost small" id="acceptBtn" type="button" hidden>Accept suggestions</button>
+    <div class="steps" role="group" aria-label="Menu steps">
+      <button type="button" data-step="1" aria-pressed="true"><b>1</b> Courses</button>
+      <button type="button" data-step="2" aria-pressed="false"><b>2</b> Chef's Selections</button>
     </div>
-    <div id="bins" style="display:contents"></div>
+    <div id="step1" style="display:contents">
+      <div class="menu-row">
+        <button class="btn ghost small" id="lassoBtn" type="button" aria-pressed="false">Lasso select</button>
+        <button class="btn ghost small" id="suggestBtn" type="button">Suggest courses</button>
+        <button class="btn ghost small" id="acceptBtn" type="button" hidden>Accept suggestions</button>
+      </div>
+      <div id="bins" style="display:contents"></div>
+      <button class="btn ghost small next" type="button" data-go="2">Next: Chef's Selections →</button>
+    </div>
+    <div id="step2" style="display:contents" hidden>
+      <p class="sub step-sub">Build tasting plates from the movies on your courses. Any mix works, even all openers.</p>
+      <div id="sels" style="display:contents"></div>
+      <button class="addsel" id="addSel" type="button"><span>+</span> Add a selection</button>
+      <button class="btn ghost small next" type="button" data-go="1">← Back to courses</button>
+    </div>
     <div class="menu-row">
       <button class="btn small" id="previewBtn" type="button">Preview menu</button>
       <button class="btn ghost small" id="copyMenu" type="button">Copy as text</button>
@@ -248,7 +324,7 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
 </div>
 
 <div class="overlay" id="overlay" hidden>
-  <div class="bar"><span id="ovLabel"></span><button type="button" id="closePreview">Close</button></div>
+  <div class="bar"><span id="ovLabel"></span><span class="acts"><span id="exportMsg"></span><button type="button" id="exportPng">Export PNG</button><button type="button" id="closePreview">Close</button></span></div>
   <article class="mcard" id="mcard"></article>
 </div>
 
@@ -496,18 +572,26 @@ const courseOf = k => COURSES.find(c => c.key === k);
 const HOUSES = {
   italian: { label: 'Italian', tag: 'Osteria · Menu degustazione',
     c: { open: ['Antipasti', 'Light, playful bites to start.'], mid: ['Primi', 'Something to settle into.'], main: ['Secondi', 'The heavy plates.'], sweet: ['Dolci', 'Something lovely to end on.'] },
-    meta: m => [m.directors?.[0], m.runtime && `${m.runtime}′`].filter(Boolean).join(' · ') },
+    meta: m => [m.directors?.[0], m.runtime && `${m.runtime}′`].filter(Boolean).join(' · '),
+    one: { open: 'Antipasto', mid: 'Primo', main: 'Secondo', sweet: 'Dolce' }, rt: n => `${n}′`,
+    sel: { it: 'Percorsi di degustazione', title: "Chef's Selection", tot: 'Totale', pair: 'Abbinamento consigliato', badge: 'Scelta dello chef' } },
   french: { label: 'French', tag: 'Menu dégustation',
     c: { open: ['Amuse-bouche', 'Une bouchée pour ouvrir l’appétit.'], mid: ['Entrée', 'Pour entrer en matière.'], main: ['Plat principal', 'Le cœur du repas.'], sweet: ['Dessert', 'Une douceur pour finir.'] },
-    meta: m => [m.directors?.[0], m.runtime && `${Math.floor(m.runtime / 60)}h${String(m.runtime % 60).padStart(2, '0')}`].filter(Boolean).join(' · ') },
+    meta: m => [m.directors?.[0], m.runtime && `${Math.floor(m.runtime / 60)}h${String(m.runtime % 60).padStart(2, '0')}`].filter(Boolean).join(' · '),
+    rt: n => `${Math.floor(n / 60)}h${String(n % 60).padStart(2, '0')}`,
+    sel: { it: 'Menus de dégustation', title: 'Sélection du chef', tot: 'Total', pair: 'Accord conseillé', badge: 'Choix du chef' } },
   diner: { label: 'Diner', tag: 'Open all night',
     c: { open: ['Starters', 'Quick, cheap, a little greasy.'], mid: ['Short Orders', 'Made to order.'], main: ['Blue Plate Specials', 'The big plate. Bring an appetite.'], sweet: ['Pie & Shakes', 'Save room.'] },
-    meta: m => m.directors?.[0] || '', price: m => m.runtime ? '$' + (m.runtime / 100).toFixed(2) : '' },
+    meta: m => m.directors?.[0] || '', price: m => m.runtime ? '$' + (m.runtime / 100).toFixed(2) : '',
+    one: { open: 'Starter', mid: 'Short Order', main: 'Blue Plate', sweet: 'Pie & Shake' }, rt: n => '$' + (n / 100).toFixed(2),
+    sel: { it: 'Combo plates', title: "Chef's Specials", tot: 'Total', pair: 'Goes great with', badge: "Cook's pick" } },
   izakaya: { label: 'Izakaya', tag: '居酒屋',
     c: { open: ['Otsumami', 'Small bites with the first drink.'], mid: ['Kozara', 'Little dishes.'], main: ['Yakimono', 'Over the coals.'], sweet: ['Shime', 'The closing bowl.'] },
     jp: { open: 'おつまみ', mid: '小皿', main: '焼物', sweet: '〆' },
-    meta: m => [m.directors?.[0], m.runtime && `${m.runtime}分`].filter(Boolean).join(' · ') },
+    meta: m => [m.directors?.[0], m.runtime && `${m.runtime}分`].filter(Boolean).join(' · '), rt: n => `${n}分`,
+    sel: { it: 'おまかせ', title: 'Omakase', tot: 'Total', pair: 'Pairing', badge: "Chef's choice" } },
 };
+const courseName = (h, k) => (h.one || {})[k] || h.c[k][0];
 const STORE = 'moviegraph-menus-v1';
 function loadMenus() {
   try { const s = JSON.parse(localStorage.getItem(STORE)); if (s && s.menus && Object.keys(s.menus).length) return s; } catch (e) {}
@@ -562,9 +646,68 @@ function renderMenu() {
   });
   $('acceptBtn').hidden = !Object.keys(menu.sug).length;
   menu.labelTags = Object.keys(m.tags).length <= 40; // label tagged movies while the menu is small enough to read
+  document.querySelectorAll('.steps [data-step]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.step === menu.step));
+  $('step1').hidden = menu.step !== 1; $('step2').hidden = menu.step !== 2;
+  if (menu.step === 2) renderSels();
   renderSelbar(); renderTagCard();
   if (!$('overlay').hidden) renderCard();
 }
+menu.step = 1;
+const goStep = n => { menu.step = n; renderMenu(); $('menuPanel').scrollTop = 0; };
+document.querySelectorAll('.steps [data-step], #menuPanel [data-go]').forEach(b => b.onclick = () => goStep(+(b.dataset.step || b.dataset.go)));
+
+// ---------- Chef's Selections (step 2) ----------
+// Each menu keeps a list of tasting plates built from the movies on its courses, in any mix. One plate can be
+// the Chef's Choice, which the preview centers between the others. The price of a plate is its total running time.
+const sels = () => (cur().sels ??= []);
+const newSel = () => ({ name: '', pair: '', ids: [''] });
+const plateMovies = s => s.ids.map(id => byId.get(id)).filter(Boolean);
+const plateMinutes = s => plateMovies(s).reduce((t, x) => t + (x.runtime || 0), 0);
+function movieOptions(m, h, chosen) {
+  const groups = COURSES.map(c => {
+    const items = MOVIES.filter(x => m.tags[x.id] === c.key).sort((a, b) => a.title.localeCompare(b.title));
+    return items.length ? `<optgroup label="${esc(h.c[c.key][0])}">${items.map(x => `<option value="${esc(x.id)}"${x.id === chosen ? ' selected' : ''}>${esc(x.title)}${x.year ? ` (${x.year})` : ''}</option>`).join('')}</optgroup>` : '';
+  }).join('');
+  // a movie taken off its course stays on the plate until it's swapped out
+  const orphan = chosen && !m.tags[chosen] && byId.get(chosen);
+  return `<option value="">Pick a movie…</option>${orphan ? `<option value="${esc(chosen)}" selected>${esc(orphan.title)} (not on a course)</option>` : ''}${groups}`;
+}
+function renderSels() {
+  const m = cur(), h = HOUSES[m.house] || HOUSES.italian, list = sels();
+  const tagged = Object.keys(m.tags).length;
+  $('addSel').hidden = !tagged;
+  if (!tagged) { $('sels').innerHTML = `<p class="sel-empty">Put a few movies on your courses first, then come back to plate them up.</p>`; return; }
+  $('sels').innerHTML = list.map((s, i) => {
+    const mins = plateMinutes(s);
+    return `<section class="sel${s.chef ? ' chef' : ''}" data-i="${i}">
+      <div class="sel-head"><input type="text" class="sel-name" value="${esc(s.name)}" placeholder="${s.chef ? "Chef's Choice" : `Selection ${i + 1}`}" aria-label="Selection name">
+        <button type="button" class="icon star" aria-pressed="${!!s.chef}" title="Make this the Chef's Choice" aria-label="Chef's Choice">${s.chef ? '★' : '☆'}</button>
+        <button type="button" class="icon del" title="Remove this selection" aria-label="Remove selection">×</button></div>
+      <ol>${s.ids.map((id, j) => {
+        const k = m.tags[id];
+        return `<li style="${k ? `--cc:var(${courseOf(k).color})` : ''}"><select data-j="${j}" aria-label="Course ${j + 1}">${movieOptions(m, h, id)}</select><button type="button" class="icon rmc" data-j="${j}" aria-label="Remove course ${j + 1}">×</button></li>`;
+      }).join('')}</ol>
+      <button type="button" class="link addc"><span>+</span> Add a course</button>
+      <input type="text" class="sel-pair" value="${esc(s.pair)}" placeholder="Recommended pairing (a snack, a drink, a mood)" aria-label="Recommended pairing">
+      <div class="tot"><span>${plateMovies(s).length} of ${s.ids.length} courses picked</span><span>${mins ? `${mins} min` : ''}</span></div>
+    </section>`;
+  }).join('');
+  $('sels').querySelectorAll('.sel').forEach(el => {
+    const s = list[+el.dataset.i];
+    const changed = (rerender = true) => { saveMenus(); if (rerender) renderSels(); if (!$('overlay').hidden) renderCard(); };
+    el.querySelector('.sel-name').oninput = e => { s.name = e.target.value; changed(false); };
+    el.querySelector('.sel-pair').oninput = e => { s.pair = e.target.value; changed(false); };
+    el.querySelector('.star').onclick = () => { const on = !s.chef; list.forEach(x => delete x.chef); if (on) s.chef = true; changed(); };
+    el.querySelector('.del').onclick = () => { list.splice(+el.dataset.i, 1); changed(); };
+    el.querySelector('.addc').onclick = () => { s.ids.push(''); changed(); $('sels').querySelector(`.sel[data-i="${el.dataset.i}"] li:last-child select`)?.focus(); };
+    el.querySelectorAll('select').forEach(sel => sel.onchange = () => { s.ids[+sel.dataset.j] = sel.value; changed(); });
+    el.querySelectorAll('.rmc').forEach(b => b.onclick = () => { s.ids.splice(+b.dataset.j, 1); if (!s.ids.length) s.ids.push(''); changed(); });
+  });
+}
+$('addSel').onclick = () => {
+  sels().push(newSel()); saveMenus(); renderSels();
+  const last = [...$('sels').querySelectorAll('.sel')].pop(); last?.querySelector('.sel-name').focus(); last?.scrollIntoView({ block: 'nearest' });
+};
 function tag(ids, course) {
   const m = cur();
   for (const id of ids) { if (course) m.tags[id] = course; else delete m.tags[id]; delete menu.sug[id]; }
@@ -684,17 +827,64 @@ function renderCard() {
     const items = courseItems(m, c.key);
     return `<section class="course"><h2>${h.c[c.key][0]}${h.jp ? `<span class="jp">${h.jp[c.key]}</span>` : ''}</h2><p class="csub">${esc(h.c[c.key][1])}</p>` +
       (items.length ? `<ul>${items.map(x => `<li><div class="dt"><span>${esc(x.title)}</span><span class="lead"></span><span>${h.price ? h.price(x) : (x.year || '')}</span></div><div class="dm">${esc(h.meta(x))}</div></li>`).join('')}</ul>` : `<p class="none">Nothing on this course yet.</p>`) + `</section>`;
-  }).join('');
+  }).join('') + selectionsHTML(m, h);
+}
+function plateHTML(m, h, s, i) {
+  const items = plateMovies(s), mins = plateMinutes(s);
+  const name = s.name.trim() || (s.chef ? "Chef's Choice" : `Selection ${i + 1}`);
+  return `<article class="plate${s.chef ? ' chef' : ''}">${s.chef ? `<p class="badge">${esc(h.sel.badge)}</p>` : ''}<h3>${esc(name)}</h3>
+    <ol>${items.map(x => `<li><span class="pc">${esc(m.tags[x.id] ? courseName(h, m.tags[x.id]) : '')}</span><span class="pf">${esc(x.title)}${x.year ? ` <span class="y">${x.year}</span>` : ''}</span><span class="pr">${x.runtime ? esc(h.rt(x.runtime)) : ''}</span></li>`).join('')}</ol>
+    ${mins ? `<p class="tot"><span>${esc(h.sel.tot)}</span><span>${esc(h.rt(mins))}</span></p>` : ''}
+    ${s.pair.trim() ? `<p class="pair"><span>${esc(h.sel.pair)}</span>${esc(s.pair.trim())}</p>` : ''}</article>`;
+}
+function selectionsHTML(m, h) {
+  const list = (m.sels || []).map((s, i) => ({ s, i })).filter(({ s }) => plateMovies(s).length);
+  if (!list.length) return '';
+  const chef = list.find(({ s }) => s.chef), rest = list.filter(x => x !== chef);
+  let cls = 'plates', style = '', html;
+  if (chef && rest.length) {
+    // Chef's Choice holds the middle column; the other plates alternate left and right of it
+    const rows = Math.ceil(rest.length / 2);
+    cls += ' withchef';
+    style = ` style="--areas:${Array.from({ length: rows }, (_, r) => `'l${r} x r${r}'`).join(' ')}"`;
+    html = plateHTML(m, h, chef.s, chef.i).replace('<article class="plate chef"', `<article class="plate chef" style="grid-area:x"`) +
+      rest.map(({ s, i }, n) => plateHTML(m, h, s, i).replace('<article class="plate', `<article style="grid-area:${n % 2 ? 'r' : 'l'}${n >> 1}" class="plate`)).join('');
+  } else {
+    if (list.length === 1) cls += ' solo';
+    html = list.map(({ s, i }) => plateHTML(m, h, s, i)).join('');
+  }
+  return `<section class="course selection"><p class="it">${esc(h.sel.it)}</p><h2>${esc(h.sel.title)}</h2><p class="csub">Each plate priced at its total running time.</p><div class="${cls}"${style}>${html}</div></section>`;
 }
 $('previewBtn').onclick = () => {
   if (!fontsLoaded) {
-    fontsLoaded = true; const l = document.createElement('link'); l.rel = 'stylesheet';
+    fontsLoaded = true; const l = document.createElement('link'); l.rel = 'stylesheet'; l.crossOrigin = 'anonymous'; // readable, so the PNG export can embed the fonts
     l.href = 'https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;1,400&family=Cormorant+Garamond:wght@500&family=Alfa+Slab+One&family=Shippori+Mincho:wght@500;700&display=swap';
     document.head.appendChild(l);
   }
   renderCard(); $('overlay').hidden = false; $('closePreview').focus();
 };
 $('closePreview').onclick = () => { $('overlay').hidden = true; };
+// PNG export draws the card in the browser with html-to-image, loaded from the CDN the first time it's used
+let imgLib;
+const loadImgLib = () => imgLib ??= new Promise((ok, fail) => {
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js';
+  s.onload = () => ok(window.htmlToImage); s.onerror = () => { imgLib = null; fail(new Error('could not load html-to-image')); };
+  document.head.appendChild(s);
+});
+$('exportPng').onclick = async () => {
+  const b = $('exportPng'), card = $('mcard');
+  b.disabled = true; b.textContent = 'Exporting…'; $('exportMsg').textContent = '';
+  try {
+    const lib = await loadImgLib(); await document.fonts.ready;
+    const url = await lib.toPng(card, { pixelRatio: 2, backgroundColor: getComputedStyle(card).backgroundColor });
+    const a = document.createElement('a'); a.href = url;
+    a.download = (cur().name || 'menu').trim().replace(/[\\/:*?"<>|]+/g, '').replace(/\s+/g, '-').toLowerCase() + '.png';
+    document.body.appendChild(a); a.click(); a.remove();
+  } catch (e) {
+    console.error(e); $('exportMsg').textContent = 'Export failed. Check your connection and try again.';
+  } finally { b.disabled = false; b.textContent = 'Export PNG'; }
+};
 $('overlay').addEventListener('click', e => { if (e.target === $('overlay')) $('overlay').hidden = true; });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { $('overlay').hidden = true; closeTagCard(); } });
 $('copyMenu').onclick = () => {
@@ -702,7 +892,11 @@ $('copyMenu').onclick = () => {
   const text = [m.name || 'Untitled menu', ...COURSES.flatMap(c => {
     const items = courseItems(m, c.key); if (!items.length) return [];
     return ['', h.c[c.key][0].toUpperCase(), ...items.map(x => `- ${x.title}${x.year ? ` (${x.year})` : ''}`)];
-  })].join('\n');
+  }), ...(m.sels || []).flatMap((s, i) => !plateMovies(s).length ? [] : [
+    '', `${h.sel.title.toUpperCase()}: ${s.name.trim() || (s.chef ? "Chef's Choice" : `Selection ${i + 1}`)}${s.chef ? ' ★' : ''}`,
+    ...plateMovies(s).map(x => `- ${x.title}${x.year ? ` (${x.year})` : ''}`),
+    ...(s.pair.trim() ? [`  ${h.sel.pair}: ${s.pair.trim()}`] : []),
+  ])].join('\n');
   const done = msg => { $('menuToast').textContent = msg; };
   navigator.clipboard?.writeText(text).then(() => done('Copied'), fallback) ?? fallback();
   function fallback() { const ta = document.createElement('textarea'); ta.className = 'copyfallback'; ta.value = text; ta.readOnly = true; $('menuToast').replaceWith(ta); ta.id = 'menuToast'; ta.select(); }
