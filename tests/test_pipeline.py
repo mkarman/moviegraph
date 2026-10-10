@@ -223,6 +223,20 @@ class TvCheck(unittest.TestCase):
         r = enrich_tmdb.enrich({"id": "x", "title": "Mystery Science Theater 3000: Soultaker", "verify_type": "yes"})
         self.assertEqual(r["media_type"], "tv")
 
+    def test_override_beats_cache(self):
+        bad = {"source_title": "Thirteen Ghosts", "title": "Thirteen Erotic Ghosts", "tmdb_id": 27477,
+               "matched": True, "status": "fuzzy", "media_type": "movie"}
+        cache = {"thirteen ghosts": bad}
+        self.assertIsNone(enrich_tmdb.from_cache(cache, {"id": "thirteen ghosts", "title": "Thirteen Ghosts"}))
+        good = {**bad, "title": "Thir13en Ghosts", "tmdb_id": 9378, "status": "manual override"}
+        hit = enrich_tmdb.from_cache({"thirteen ghosts": good}, {"id": "thirteen ghosts", "title": "Thirteen Ghosts"})
+        self.assertEqual(hit["tmdb_id"], 9378)
+
+    def test_thirteen_ghosts_override(self):
+        self.fake({"Thir13en Ghosts": [{"id": 9378, "title": "Thir13en Ghosts", "release_date": "2001-10-26", "vote_count": 1500}]}, {})
+        r = enrich_tmdb.enrich({"id": "thirteen ghosts", "title": "Thirteen Ghosts", "verify_type": "no"})
+        self.assertEqual((r["query"], r["status"]), ("Thir13en Ghosts", "manual override"))
+
     def test_amazon_movies_not_checked(self):
         self.fake({"24": [{"id": 5, "title": "24", "vote_count": 3}]},
                   {"24": [{"id": 1973, "name": "24", "vote_count": 3000}]})

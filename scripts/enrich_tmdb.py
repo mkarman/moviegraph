@@ -52,6 +52,9 @@ OVERRIDES = {
     "Mystery Science Theater 3000: Santa Claus": None,
     "Blade Runner: The Final Cut": ("Blade Runner", 1982),
     "Evil Bong 2: Devil's Harvest": ("Evil Bong 2: King Bong", None),
+    # Mike: the 2001 horror film. A plain search fuzzy-matches "Thirteen Erotic Ghosts" (2002)
+    "Thirteen Ghosts": ("Thir13en Ghosts", 2001),
+    "Thir13en Ghosts": ("Thir13en Ghosts", 2001),
 }
 YEAR = re.compile(r"\s*\((19|20)(\d\d)\)\s*$")
 NOT_A_MOVIE = re.compile(r"\btrailer\b|^episode \d+\b|\bbonus\b|\bbehind the scenes\b", re.I)
@@ -229,6 +232,9 @@ def from_cache(cache, m):
     for t in variants:
         r = cache.get(key(t)) if t else None
         # Rows from before the TV check carry no media_type; recheck them if this title's type is in doubt
+        # An override added after the earlier run must replace whatever that run matched
+        if r and m["title"] in OVERRIDES and r.get("status") != "manual override":
+            r = None
         if r and (m.get("verify_type") != "yes" or "media_type" in r):
             tmdb = {k: v for k, v in r.items() if k not in HISTORY and k not in ("id", "amazon_title")}
             return {**tmdb, "id": m["id"], "source_title": m["title"], **history(m)}
