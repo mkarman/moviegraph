@@ -713,7 +713,7 @@ const gEl = $('genres');
 for (const [g, c] of genreCount) {
   const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', 'false');
   b.innerHTML = `<span class="dot" style="background:var(${colorVar.get(g)})"></span>${esc(g)} <span class="meta">${c}</span>`;
-  b.onclick = () => { state.genres.has(g) ? state.genres.delete(g) : state.genres.add(g); b.setAttribute('aria-pressed', state.genres.has(g)); rebuild(); };
+  b.onclick = () => { leaveStart(); state.genres.has(g) ? state.genres.delete(g) : state.genres.add(g); b.setAttribute('aria-pressed', state.genres.has(g)); rebuild(); };
   gEl.appendChild(b);
 }
 // Rating, service and profile chips appear only when the data carries them (not in the sample).
@@ -724,7 +724,7 @@ function chipGroup(box, el, set, entries) {
   for (const [k, label, n] of entries) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', 'false');
     b.dataset.k = k; b.innerHTML = `${esc(label)} <span class="meta">${n}</span>`;
-    b.onclick = () => { set.has(k) ? set.delete(k) : set.add(k); b.setAttribute('aria-pressed', set.has(k)); rebuild(); };
+    b.onclick = () => { leaveStart(); set.has(k) ? set.delete(k) : set.add(k); b.setAttribute('aria-pressed', set.has(k)); rebuild(); };
     $(el).appendChild(b);
   }
 }
@@ -732,7 +732,7 @@ const tally = f => d3.rollups(MOVIES.flatMap(f), v => v.length, d => d);
 chipGroup('mineBox', 'mine', state.mine, Object.keys(MINE).map(k => [k, MINE[k], MOVIES.filter(m => (m.my_rating || 'unrated') === k).length]).filter(d => d[2]));
 chipGroup('srcBox', 'srcs', state.srcs, tally(m => m.sources || []).map(([k, n]) => [k, SOURCES[k] || k, n]));
 chipGroup('profBox', 'profs', state.profs, tally(m => m.profiles || []).sort((a, b) => b[1] - a[1]).map(([k, n]) => [k, k, n]));
-$('clearGenres').onclick = () => { state.genres.clear(); gEl.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', 'false')); rebuild(); };
+$('clearGenres').onclick = () => { leaveStart(); state.genres.clear(); gEl.querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', 'false')); rebuild(); };
 $('legend').innerHTML = ALL_GENRES.slice(0, 8).map(g => `<span><i style="background:var(${colorVar.get(g)})"></i>${esc(g)}</span>`).join('') + (ALL_GENRES.length > 8 ? `<span><i style="background:var(--g9)"></i>Other</span>` : '');
 
 for (const id of ['yearMin', 'yearMax']) { const el = $(id); el.min = Y0; el.max = Y1; el.step = 1; }
@@ -743,29 +743,37 @@ const syncYears = () => {
 };
 syncYears();
 let t; const debounced = () => { clearTimeout(t); t = setTimeout(rebuild, 120); };
-$('yearMin').oninput = $('yearMax').oninput = () => { syncYears(); debounced(); };
+$('yearMin').oninput = $('yearMax').oninput = () => { leaveStart('year'); syncYears(); debounced(); };
 const syncRating = () => { state.ratingMin = +$('ratingMin').value; $('ratingOut').textContent = state.ratingMin ? `${state.ratingMin}+` : 'any'; };
-syncRating(); $('ratingMin').oninput = () => { syncRating(); debounced(); };
+syncRating(); $('ratingMin').oninput = () => { leaveStart('rating'); syncRating(); debounced(); };
 for (const [id, k] of [['byDirector', 'director'], ['byCast', 'cast'], ['byGenre', 'genre']]) $(id).onchange = e => { state.by[k] = e.target.checked; rebuild(); };
 
 $('titles').innerHTML = [...MOVIES].sort((a, b) => a.title.localeCompare(b.title)).map(m => `<option value="${esc(m.title)}">`).join('');
 $('q').addEventListener('input', e => {
   const v = e.target.value.trim().toLowerCase(); if (!v) return;
   const m = MOVIES.find(m => m.title.toLowerCase() === v); if (!m) return;
-  if (!passes(m)) { resetFilters(false); }
+  if (!passes(m)) { resetFilters(); }
   select(m.id, true);
 });
-function resetFilters(rerender = true) {
+// Clears every filter without redrawing. keep names a slider ('year' or 'rating') the user is moving, so
+// their new value survives.
+function clearFilters(keep) {
+  starting = false; $('startNote').hidden = true;
   for (const s of [state.genres, state.mine, state.srcs, state.profs]) s.clear();
   for (const id of ['genres', 'mine', 'srcs', 'profs']) $(id).querySelectorAll('.chip').forEach(b => b.setAttribute('aria-pressed', 'false'));
-  $('yearMin').value = Y0; $('yearMax').value = Y1; syncYears(); $('ratingMin').value = 0; syncRating();
-  rebuild();
+  if (keep !== 'year') { $('yearMin').value = Y0; $('yearMax').value = Y1; syncYears(); }
+  if (keep !== 'rating') { $('ratingMin').value = 0; syncRating(); }
 }
-$('reset').onclick = () => { $('startNote').hidden = true; resetFilters(); };
+function resetFilters() { clearFilters(); rebuild(); }
+$('reset').onclick = resetFilters;
+// The first filter the user touches replaces the starting filters, as if they had pressed "Reset all
+// filters" first; after that, filters combine as usual.
+let starting = false;
+function leaveStart(keep) { if (starting) clearFilters(keep); }
 
 // A big history (1,000+ movies) is slow to lay out all at once, so start on a slice of it: the movies you
 // liked, if any are rated, then a rising TMDb rating floor until at most START_CAP remain. The filters
-// show what was applied, and "Reset all filters" brings back everything.
+// show what was applied, and "Reset all filters" or the user's first filter change brings back everything.
 const START_CAP = 300;
 function startingFilters() {
   if (MOVIES.length <= START_CAP) return;
@@ -785,8 +793,9 @@ function startingFilters() {
     $('ratingMin').value = state.ratingMin; syncRating();
     applied.push(`TMDb ${state.ratingMin}+`);
   }
-  $('startNote').textContent = `Starting with ${n} of ${MOVIES.length} (${applied.join(', ')}) so the graph loads quickly. Reset all filters to see everything.`;
+  $('startNote').textContent = `Starting with ${n} of ${MOVIES.length} (${applied.join(', ')}) so the graph loads quickly. Changing any filter starts over from all ${MOVIES.length}.`;
   $('startNote').hidden = false;
+  starting = true;
 }
 startingFilters();
 
