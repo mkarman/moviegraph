@@ -165,6 +165,7 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
     <h1>Movie Graph</h1>
     <span class="counts" id="counts"></span>
     <span class="banner" id="banner" hidden>Sample data: a hand-entered subset of your watch history until the TMDb enrichment lands</span>
+    <span class="banner" id="startNote" hidden></span>
     <button class="btn modeswitch small" id="menuMode" type="button" aria-pressed="false">Menu mode</button>
   </header>
 
@@ -722,7 +723,7 @@ function chipGroup(box, el, set, entries) {
   $(box).hidden = false;
   for (const [k, label, n] of entries) {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', 'false');
-    b.innerHTML = `${esc(label)} <span class="meta">${n}</span>`;
+    b.dataset.k = k; b.innerHTML = `${esc(label)} <span class="meta">${n}</span>`;
     b.onclick = () => { set.has(k) ? set.delete(k) : set.add(k); b.setAttribute('aria-pressed', set.has(k)); rebuild(); };
     $(el).appendChild(b);
   }
@@ -760,14 +761,42 @@ function resetFilters(rerender = true) {
   $('yearMin').value = Y0; $('yearMax').value = Y1; syncYears(); $('ratingMin').value = 0; syncRating();
   rebuild();
 }
-$('reset').onclick = () => resetFilters();
+$('reset').onclick = () => { $('startNote').hidden = true; resetFilters(); };
+
+// A big history (1,000+ movies) is slow to lay out all at once, so start on a slice of it: the movies you
+// liked, if any are rated, then a rising TMDb rating floor until at most START_CAP remain. The filters
+// show what was applied, and "Reset all filters" brings back everything.
+const START_CAP = 300;
+function startingFilters() {
+  if (MOVIES.length <= START_CAP) return;
+  const applied = [];
+  const liked = MOVIES.filter(m => m.my_rating === 'liked').length;
+  if (liked >= 30) {
+    state.mine.add('liked');
+    $('mine').querySelector('[data-k="liked"]')?.setAttribute('aria-pressed', 'true');
+    applied.push('movies you liked');
+  }
+  let n = MOVIES.filter(passes).length;
+  while (n > START_CAP && state.ratingMin < 9) {
+    state.ratingMin += 0.5;
+    n = MOVIES.filter(passes).length;
+  }
+  if (state.ratingMin) {
+    $('ratingMin').value = state.ratingMin; syncRating();
+    applied.push(`TMDb ${state.ratingMin}+`);
+  }
+  $('startNote').textContent = `Starting with ${n} of ${MOVIES.length} (${applied.join(', ')}) so the graph loads quickly. Reset all filters to see everything.`;
+  $('startNote').hidden = false;
+}
+startingFilters();
 
 new ResizeObserver(resize).observe(stage);
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', draw);
 new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 resize(); rebuild();
 // Open on a well-connected example so the first view shows what the tool does.
-const starter = MOVIES.find(m => m.title === 'The Endless') || MOVIES[0];
+const shown = MOVIES.filter(passes);
+const starter = shown.find(m => m.title === 'The Endless') || shown[0];
 if (starter) setTimeout(() => select(starter.id), 0);
 })();
 </script>

@@ -7,9 +7,11 @@ from datetime import datetime
 EDITION_RES = [
     re.compile(r"\s*-?\s*\(?Bonus X-Ray Edition\)?\s*$", re.I),
     re.compile(r"\s*\((4K UHD|English Subtitled|English Dubbed|English dub version|"
-               r"Theatrical/Rated Version|Unrated Version|Extended|Non-Interactive|"
+               r"Theatrical/Rated Version|Original Theatrical Version|Unrated Version|Extended|Non-Interactive|"
                r"DC Showcase Shorts Collection|Not Suitable For Children)\)\s*$", re.I),
     re.compile(r"\s+Special Edition\s*$", re.I),
+    re.compile(r"\s*[:-]\s*(Original Theatrical Version|Director['’]?s Cut|Theatrical (?:and Director['’]?s )?Cut|"
+               r"\d+(?:st|nd|rd|th) Anniversary(?: Ultimate| Special)? Edition)\s*$", re.I),
     re.compile(r":\s*(Remastered|International Version|Collector'?s Edition|"
                r"(?:Remix! )?Special (?:Anniversary |Fan )?Edition|Uncensored Extended)\s*$", re.I),
 ]
