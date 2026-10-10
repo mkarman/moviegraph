@@ -308,6 +308,7 @@ def details(out, tmdb_id, how):
             "rating": d.get("vote_average"),
             "votes": d.get("vote_count"),
             "poster_path": d.get("poster_path"),
+            "overview": d.get("overview") or None,  # feeds the menu notes in write_blurbs.py
         },
     }
 

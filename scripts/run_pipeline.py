@@ -2,12 +2,14 @@
 """
 run_pipeline.py - Run every stage: staging -> normalize -> enrich -> graph.
 
-Usage: python scripts/run_pipeline.py [--profile NAME ...] [--min-minutes 20] [--skip-enrich]
+Usage: python scripts/run_pipeline.py [--profile NAME ...] [--min-minutes 20] [--skip-enrich] [--blurbs]
 
   1. normalize.py   data/staging/**        -> data/normalized/*.csv
   2. enrich_tmdb.py data/normalized/movies.csv -> data/enriched_tmdb.json   (needs TMDB_API_KEY for new titles)
-  3. build_graph.py data/enriched_tmdb.json   -> graph/movie-graph.html
+  3. write_blurbs.py data/enriched_tmdb.json  -> data/blurbs.json         (only with --blurbs; needs ANTHROPIC_API_KEY)
+  4. build_graph.py data/enriched_tmdb.json   -> graph/movie-graph.html
 
+--blurbs writes a menu note for each film that doesn't have one yet (an Anthropic API call per 20 films).
 --skip-enrich rebuilds the graph from the existing data/enriched_tmdb.json, for when there is no API key at hand.
 """
 
@@ -21,6 +23,7 @@ ap = argparse.ArgumentParser()
 ap.add_argument("--profile", action="append", default=[])
 ap.add_argument("--min-minutes")
 ap.add_argument("--skip-enrich", action="store_true")
+ap.add_argument("--blurbs", action="store_true")
 args = ap.parse_args()
 
 
@@ -35,4 +38,6 @@ if args.min_minutes:
 step(*norm)
 if not args.skip_enrich:
     step("scripts/enrich_tmdb.py")
+if args.blurbs:
+    step("scripts/write_blurbs.py")
 step("graph/build_graph.py", "data/enriched_tmdb.json", "graph/movie-graph.html")

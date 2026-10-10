@@ -25,5 +25,6 @@ The Netflix files not listed above are not used.
 | `normalized/extras.csv` | `scripts/normalize.py` | trailers, clips, and movies only sampled for a few minutes |
 | `normalized/ratings.csv` | `scripts/normalize.py` | every rating with its raw value and scale, normalized label and score, and what it matched |
 | `enriched_tmdb.json` | `scripts/enrich_tmdb.py` | TMDB match and metadata per movie, plus the history and rating fields above |
+| `blurbs.json` | `scripts/write_blurbs.py` | optional: a one-line menu note per film, keyed by TMDB id |
 
 The older layout (`data/watch-history.csv` with no `staging/` folder) still works for an Amazon-only run.

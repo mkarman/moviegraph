@@ -15,6 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import enrich_tmdb  # noqa: E402
+import write_blurbs  # noqa: E402
 from sources import netflix  # noqa: E402
 from sources.common import normalize_rating  # noqa: E402
 
@@ -273,6 +274,56 @@ class TvCheck(unittest.TestCase):
                   {"24": [{"id": 1973, "name": "24", "vote_count": 3000}]})
         r = enrich_tmdb.enrich({"id": "24", "title": "24", "verify_type": "no"})
         self.assertTrue(r["matched"])
+
+class Blurbs(unittest.TestCase):
+    ROWS = [
+        {"tmdb_id": 562, "title": "Die Hard", "year": "1988", "matched": True, "media_type": "movie",
+         "directors": ["John McTiernan"], "genres": ["Action"], "keywords": ["skyscraper"], "overview": "An NYPD cop..."},
+        {"tmdb_id": 562, "title": "Die Hard", "matched": True},  # the same film from a second service
+        {"tmdb_id": 1399, "title": "Game of Thrones", "matched": False, "media_type": "tv"},
+        {"title": "Unknown", "matched": False},
+    ]
+
+    def test_one_entry_per_film(self):
+        f = write_blurbs.films(self.ROWS)
+        self.assertEqual(list(f), ["562"])
+        d = write_blurbs.describe("562", f["562"])
+        self.assertEqual(d["overview"], "An NYPD cop...")
+        self.assertNotIn("cast", d)  # empty fields are left out
+
+    def test_request_keeps_only_asked_ids(self):
+        class Block:
+            type, text = "text", json.dumps({"notes": [{"id": "562", "note": " Glass, a vest and a lot of nerve. "},
+                                                       {"id": "999", "note": "Not asked for."}]})
+
+        class Client:
+            class beta:
+                class messages:
+                    @staticmethod
+                    def create(**kw):
+                        Client.kw = kw
+                        return type("R", (), {"stop_reason": "end_turn", "content": [Block()]})()
+        got = write_blurbs.request(Client, "claude-opus-5-5", [{"id": "562", "title": "Die Hard"}])
+        self.assertEqual(got, {"562": "Glass, a vest and a lot of nerve."})
+        self.assertEqual(Client.kw["output_config"]["format"]["type"], "json_schema")
+
+    def test_reruns_skip_written_notes(self):
+        with tempfile.TemporaryDirectory() as d:
+            src, out = Path(d) / "enriched.json", Path(d) / "blurbs.json"
+            src.write_text(json.dumps(self.ROWS), encoding="utf-8")
+            out.write_text(json.dumps({"562": "Already written."}), encoding="utf-8")
+            run("scripts/write_blurbs.py", "--input", src, "--output", out)  # nothing to do: no API key or package needed
+            self.assertEqual(json.loads(out.read_text(encoding="utf-8")), {"562": "Already written."})
+
+    def test_graph_carries_blurbs(self):
+        with tempfile.TemporaryDirectory() as d:
+            src, notes, html = Path(d) / "enriched.json", Path(d) / "blurbs.json", Path(d) / "graph.html"
+            src.write_text(json.dumps(self.ROWS), encoding="utf-8")
+            notes.write_text(json.dumps({"562": "Glass, a vest and a lot of nerve."}), encoding="utf-8")
+            run("graph/build_graph.py", src, html, "--blurbs", notes)
+            blob = html.read_text(encoding="utf-8").split('id="movie-data">', 1)[1].split("</script>", 1)[0]
+            node = next(m for m in json.loads(blob)["movies"] if m["id"] == "562")
+            self.assertEqual(node["blurb"], "Glass, a vest and a lot of nerve.")
 
 
 if __name__ == "__main__":

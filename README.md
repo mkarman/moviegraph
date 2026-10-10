@@ -25,6 +25,18 @@ python scripts/run_pipeline.py          # then open graph/movie-graph.html
 # To keep only some Netflix profiles, list them in data/staging/profiles.txt (one per line) or pass --profile NAME
 ```
 
+**Menu notes (optional).** The menu builder can print a one-line tasting note under each dish ("Seven schoolgirls
+and a country house with an appetite, served in candy colours."). Claude writes them once, from each film's TMDB
+details, into `data/blurbs.json`; the graph and the site pick them up from there, and you can rewrite any note on
+the movie's card in menu mode. Needs `pip install anthropic` and an [Anthropic API key](https://platform.claude.com/):
+
+```bash
+export ANTHROPIC_API_KEY=your-key
+python scripts/run_pipeline.py --blurbs   # or on its own: python scripts/write_blurbs.py --limit 20
+```
+
+Films that already have a note are skipped, so later runs only write notes for new films.
+
 Each stage also runs on its own: `scripts/normalize.py`, `scripts/enrich_tmdb.py` (`--limit 20` for a quick trial),
 and `graph/build_graph.py data/enriched_tmdb.json graph/movie-graph.html`. Enrichment reuses earlier matches from
 `data/enriched_tmdb.json`, so adding a new export only looks up the new titles.
