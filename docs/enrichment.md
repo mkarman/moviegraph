@@ -55,7 +55,23 @@ Even the least-known film had genres, a director, a cast and keywords. Keywords 
 prefers exact title matches (most-voted on ties), falls back to a close fuzzy match, then fetches details.
 Output goes to `data/enriched_tmdb.json` as a flat list in the shape `graph/build_graph.py` reads (title, year, genres, directors, cast, rating, runtime, tmdb_id), plus `matched` and a `status` per row saying how it matched, so ties can be reviewed.
 
-    TMDB_API_KEY=<key> python scripts/enrich_tmdb.py   # reads data/movies_clean.csv by default
+    TMDB_API_KEY=<key> python scripts/enrich_tmdb.py   # reads data/normalized/movies.csv by default
+
+## Movie or TV: the TMDB check for Netflix titles
+Netflix's export doesn't say whether a title is a film. `normalize.py` removes everything that is plainly an episode,
+and marks the rest `verify_type=yes`. For those rows `enrich_tmdb.py` adds a `/search/tv` call (and, when the movie
+search found nothing, one for the part before the first colon, which catches "Mystery Science Theater 3000: Soultaker").
+The row is TV when TMDB has an exact show match and either no exact film match or a film with fewer votes:
+
+| Title | Movie search | TV search | Result |
+|---|---|---|---|
+| Alien | exact, ~15k votes | none | film |
+| 24 | small film | the series, thousands of votes | TV |
+| Futurama: Into the Wild Green Yonder | exact | none | film |
+| MST3K: Soultaker | none | "Mystery Science Theater 3000" | TV |
+
+TV rows come out as `matched: false, media_type: "tv"` with the show's `tmdb_tv_id`, and the graph skips them.
+Amazon rows are never checked, since Amazon states the type.
 
 ## Notes
 - The earlier `fetch_metadata.py` took the first search result, which is wrong for ambiguous titles; `enrich_tmdb.py` replaces it.
