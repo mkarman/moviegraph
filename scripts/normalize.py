@@ -197,9 +197,11 @@ def main():
             shows[k]["ratings"].append(entry)
             continue
         m = movies[k]
-        if not m["sources"]:  # new rated-only row
+        if not m["sources"]:  # new rated-only row; the service it was rated on counts as its source
             m["variants"][r["title"]] += 1
             m["basis"].add(f"rated on {r['source'].title()}, not in viewing history")
+            m["sources"].add(r["source"])
+            m["rated_only"] = True
         m["ratings"].append(entry)
         if r["profile"]:
             m["profiles"].add(r["profile"])
@@ -244,7 +246,7 @@ def main():
             w.writerow([r["source"], r["profile"], r["raw_title"], r["scale"], r["value"], r["label"], r["score"],
                         r["date"], r["kept"], r["matched_to"]])
 
-    n_rated_only = sum(1 for m in movies.values() if not m["sources"])
+    n_rated_only = sum(1 for m in movies.values() if m.get("rated_only"))
     print(f"{len(views)} views, {len(ratings)} ratings -> {len(movies)} movies "
           f"({n_rated_only} rated only, {sum(m['verify'] for m in movies.values())} to confirm on TMDB), "
           f"{len(shows)} shows, {len(extras)} extras -> {args.out}")

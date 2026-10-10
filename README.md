@@ -106,8 +106,8 @@ Settings → Pages → Build and deployment → Source: **GitHub Actions**.
 
 - Your raw exports and pipeline outputs (`data/*`, including `data/staging/`, and `graph/movie-graph.html`) are gitignored.
   The published movie list in `site/movies.json` is a trimmed copy: TMDB id, title, year, genres, directors, cast, rating, runtime.
-  The pipeline's output now also carries your ratings, watch dates and Netflix profile names; leave those out if you
-  refresh `site/movies.json` from it.
+  Refresh it with `python scripts/export_site.py`, which adds which service each film was watched on and your
+  liked/neutral/disliked score, and never writes watch dates or profile names (`--no-ratings` drops your scores too).
 - The TMDB key is read only from the `TMDB_API_KEY` environment variable. Never put it in a file in this repo.
 
 ## Known limitations
