@@ -367,14 +367,17 @@ function similarity(a, b) {
   const kind = dirs.length ? 'director' : cast.length ? 'cast' : 'genre';
   return { score, dirs, cast, genres: gShared, kind };
 }
+// Picking several genres, services or profiles narrows to movies that have all of them (Horror + Comedy
+// is horror comedies). A movie has one rating of yours, so picking several of those shows any of them.
+const hasAll = (set, list) => [...set].every(k => list.includes(k));
 const passes = m =>
-  (!state.genres.size || (m.genres || []).some(g => state.genres.has(g))) &&
+  hasAll(state.genres, m.genres || []) &&
   (!m.year || (m.year >= state.yearMin && m.year <= state.yearMax)) &&
   (m.rating == null || m.rating >= state.ratingMin) &&
   (!state.mine.size || state.mine.has(m.my_rating || 'unrated')) &&
-  (!state.srcs.size || (m.sources || []).some(s => state.srcs.has(s))) &&
+  hasAll(state.srcs, m.sources || []) &&
   // Rows with no profile (Amazon exports have none) stay visible under any profile filter
-  (!state.profs.size || !(m.profiles || []).length || m.profiles.some(p => state.profs.has(p)));
+  (!(m.profiles || []).length || hasAll(state.profs, m.profiles));
 const MINE = { liked: 'Liked', neutral: 'Neutral', disliked: 'Disliked', unrated: 'Unrated' };
 const SOURCES = { amazon: 'Amazon', netflix: 'Netflix' };
 
