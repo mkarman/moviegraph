@@ -75,6 +75,7 @@ OVERRIDES = {
     "Tim Burton's The Nightmare Before Christmas": ("The Nightmare Before Christmas", 1993),
     "William Shakespeare's A Midsummer Night's Dream": ("A Midsummer Night's Dream", 1999),
     "Nature: A Sloth Named Velcro": None,  # a PBS Nature episode
+    "Black": None,  # Mike: unknown which film; leave it out
     # Real films the search missed
     "Nausicaä of the Valley of the Wind": ("Nausicaä of the Valley of the Wind", 1984),
     "Trollhunter": ("Trolljegeren", 2010),
