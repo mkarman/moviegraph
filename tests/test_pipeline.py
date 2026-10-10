@@ -97,7 +97,8 @@ class Pipeline(unittest.TestCase):
 
     def test_rated_only_title_kept(self):
         m = self.movies["alien 3"]  # "Alien 3: Collector's Edition", rated but never streamed
-        self.assertEqual((m["sources"], m["rating_label"], m["verify_type"]), ("", "neutral", "yes"))
+        self.assertEqual((m["sources"], m["rating_label"], m["verify_type"]), ("netflix", "neutral", "yes"))
+        self.assertEqual(m["watch_count"], "0")
         self.assertNotIn("alien", self.movies)  # star -2 = "not seen"
 
     def test_sampled_and_extras(self):
