@@ -77,7 +77,7 @@ OVERRIDES = {
     "Nature: A Sloth Named Velcro": None,  # a PBS Nature episode
     "Black": None,  # Mike: unknown which film; leave it out
     # Real films the search missed
-    "Nausicaä of the Valley of the Wind": 81,
+    "Nausicaä of the Valley of the Wind": 81,  # by id, so the graph keeps this title (see main)
     "Trollhunter": ("Trolljegeren", 2010),
     "The House of Small Cubes": ("La Maison en Petits Cubes", 2008),
     "Rebel Moon — Part One": ("Rebel Moon - Part One: A Child of Fire", 2023),
@@ -351,6 +351,11 @@ def main():
             print(f"{n}/{len(todo)}", file=sys.stderr)
         time.sleep(0.05)
 
+    # An override by TMDB id keeps the watched title on screen: TMDB's English title for id 81 is
+    # "Warriors of the Wind", the cut US release, not "Nausicaä of the Valley of the Wind"
+    for r in rows:
+        if isinstance(OVERRIDES.get(r.get("source_title")), int) and r.get("matched"):
+            r["title"] = r["source_title"]
     json.dump(rows, open(args.output, "w", encoding="utf-8"), indent=2, ensure_ascii=False)
     matched = sum(1 for r in rows if r["matched"])
     tv = sum(1 for r in rows if r.get("media_type") == "tv")
