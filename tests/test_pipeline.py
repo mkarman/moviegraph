@@ -249,11 +249,17 @@ class TvCheck(unittest.TestCase):
         r = enrich_tmdb.enrich({"id": "x", "title": "John Carpenter's The Fog", "verify_type": "no"})
         self.assertTrue(r["status"].startswith("without possessive, exact"), r["status"])
 
-    def test_head_of_colon_needs_generic_tail(self):
-        self.fake({"Ghostbusters": [{"id": 620, "title": "Ghostbusters", "vote_count": 9000}]}, {})
-        r = enrich_tmdb.enrich({"id": "x", "title": "Ghostbusters: Answer the Call (fan cut)", "verify_type": "no"})
-        self.assertFalse(r["matched"])
-        r = enrich_tmdb.enrich({"id": "y", "title": "Ghostbusters: The Movie", "verify_type": "no"})
+    def test_head_of_colon(self):
+        self.fake({"Star Wars": [{"id": 11, "title": "Star Wars", "vote_count": 9000}],
+                   "X2": [{"id": 36658, "title": "X2", "vote_count": 9000}]}, {})
+        r = enrich_tmdb.enrich({"id": "x", "title": "Star Wars: Episode IX: Something", "verify_type": "no"})
+        self.assertFalse(r["matched"])  # a series part is a different film
+        r = enrich_tmdb.enrich({"id": "y", "title": "X2: X-Men United", "verify_type": "no"})
+        self.assertTrue(r["matched"])
+
+    def test_one_word_prefix_needs_subtitle(self):
+        self.fake({"Borat": [{"id": 496, "title": "Borat: Cultural Learnings of America for Make Benefit Glorious Nation of Kazakhstan", "vote_count": 7000}]}, {})
+        r = enrich_tmdb.enrich({"id": "borat", "title": "Borat", "verify_type": "no"})
         self.assertTrue(r["matched"])
 
     def test_no_prefix_match_for_one_word(self):

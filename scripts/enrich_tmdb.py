@@ -69,7 +69,7 @@ OVERRIDES = {
     "Ghostbusters: Answer the Call": ("Ghostbusters", 2016),
     "Left Behind: The Movie": ("Left Behind", 2000),
     "Super Fast": ("Superfast!", 2015),
-    "Evil Bong": ("Evil Bong", 2006),
+    "Evil Bong": ("Charles Band's Evil Bong", 2006),
     "National Lampoon's Animal House": ("Animal House", 1978),
     "John Carpenter's They Live": ("They Live", 1988),
     "Tim Burton's The Nightmare Before Christmas": ("The Nightmare Before Christmas", 1993),
@@ -77,7 +77,7 @@ OVERRIDES = {
     "Nature: A Sloth Named Velcro": None,  # a PBS Nature episode
     "Black": None,  # Mike: unknown which film; leave it out
     # Real films the search missed
-    "Nausicaä of the Valley of the Wind": ("Nausicaä of the Valley of the Wind", 1984),
+    "Nausicaä of the Valley of the Wind": 81,
     "Trollhunter": ("Trolljegeren", 2010),
     "The House of Small Cubes": ("La Maison en Petits Cubes", 2008),
     "Rebel Moon — Part One": ("Rebel Moon - Part One: A Child of Fire", 2023),
@@ -150,8 +150,10 @@ def pick(results, query, year):
     if a and len(a & b) / len(a | b) >= 0.6:
         return top, "fuzzy"
     # Amazon often shortens: "Master And Commander" -> "Master and Commander: The Far Side of the World".
-    # Not for one-word titles, where any longer title qualifies ("Black" -> "Black Panther").
-    longer = [r for r in fair if norm(r.get("title", "")).startswith(q + " ")] if len(a) > 1 else []
+    # A one-word title only counts when a subtitle follows it ("Borat: Cultural Learnings..."), not another
+    # word ("Black" is not "Black Panther").
+    longer = [r for r in fair if norm(r.get("title", "")).startswith(q + " ")
+              and (len(a) > 1 or re.match(re.escape(query) + r"\s*:", r.get("title", ""), re.I))]
     if longer:
         return max(longer, key=lambda r: r.get("vote_count", 0)), "title prefix"
     return None, "no confident match"
@@ -210,9 +212,9 @@ def enrich(m):
             hit, how = None, "no confident match"
         elif hit:
             how = f"after colon, {how}"
-        # "Highlander: The Movie" -> "Highlander"; exact only, and only when the tail is generic, since
-        # "Ghostbusters: Answer the Call" or "Star Wars: Episode V" is not the film named by the head
-        if not hit and re.fullmatch(r"(the )?movie|the motion picture|original theatrical version", tail, re.I):
+        # "Highlander: The Movie" -> "Highlander", "X2: X-Men United" -> "X2"; exact only, and not when the tail
+        # names a part of a series ("Star Wars: Episode V", "Kill Bill: Vol. 2"), which is a different film
+        if not hit and not re.match(r"(episode|part|chapter|vol\.?|volume|book)\b|[ivx\d]+(\s|$)", tail, re.I):
             hit, how = pick(get("/search/movie", query=head).get("results", []), head, year)
             if hit and not how.startswith("exact"):
                 hit, how = None, "no confident match"
