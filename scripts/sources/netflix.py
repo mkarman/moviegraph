@@ -81,7 +81,7 @@ def views(rows):
     for i, row in enumerate(rows, start=1):
         raw = row["Title"].strip()
         base = {"source": NAME, "row": i, "raw_title": raw, "date": parse_date(row.get("Start Time")),
-                "minutes": minutes(row.get("Duration")), "profile": row.get("Profile Name", "").strip(),
+                "minutes": minutes(row.get("Duration")), "timed": True, "profile": row.get("Profile Name", "").strip(),
                 "source_id": ""}
         supp = (row.get("Supplemental Video Type") or "").strip()
         if supp or TRAILER_RE.search(raw):

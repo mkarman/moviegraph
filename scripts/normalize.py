@@ -34,10 +34,10 @@ import zipfile
 from collections import defaultdict
 from pathlib import Path
 
-from sources import amazon, netflix
+from sources import amazon, amazon_request, netflix
 from sources.common import key, label_for, normalize_rating, pick_display
 
-ADAPTERS = [amazon, netflix]
+ADAPTERS = [amazon, amazon_request, netflix]
 
 
 def read_csvs(staging):
@@ -135,7 +135,7 @@ def main():
     movies = defaultdict(lambda: {"variants": defaultdict(int), "years": set(), "editions": set(),
                                   "sources": set(), "ids": [], "dates": [], "minutes": 0.0, "views": 0,
                                   "profiles": set(), "basis": set(),
-                                  "verify": True, "first_row": 10 ** 9, "ratings": []})
+                                  "verify": True, "timed": True, "first_row": 10 ** 9, "ratings": []})
     shows = defaultdict(lambda: {"variants": defaultdict(int), "seasons": set(), "episodes": set(),
                                  "sources": set(), "dates": [], "views": 0, "profiles": set(), "basis": set(),
                                  "ratings": []})
@@ -156,6 +156,7 @@ def main():
             if v["date"]:
                 m["dates"].append(v["date"])
             m["minutes"] += v["minutes"]
+            m["timed"] &= v.get("timed", False)  # every view says how long it lasted
             m["views"] += 1
             if v["profile"]:
                 m["profiles"].add(v["profile"])
@@ -176,11 +177,12 @@ def main():
                 s["profiles"].add(v["profile"])
             s["basis"].add(v["type_basis"])
 
-    # Movies only Netflix saw, for a few minutes, with no rating: sampled, not watched
+    # Movies only ever played for a few minutes in total, by services that log minutes (Netflix, Amazon's data
+    # request), with no rating: sampled, not watched
     rated = {key(r["title"]) for r in ratings if normalize_rating(r["scale"], r["value"])}
     for k, m in list(movies.items()):
-        if m["sources"] == {"netflix"} and m["minutes"] < args.min_minutes and k not in rated:
-            extras.append({"source": "netflix", "row": m["first_row"], "raw_title": pick_display(m["variants"]),
+        if m["timed"] and m["minutes"] < args.min_minutes and k not in rated:
+            extras.append({"source": "|".join(sorted(m["sources"])), "row": m["first_row"], "raw_title": pick_display(m["variants"]),
                            "reason": f"sampled: {m['minutes']:.0f} min watched", "profile": "|".join(sorted(m["profiles"])),
                            "date": max(m["dates"], default="")})
             del movies[k]

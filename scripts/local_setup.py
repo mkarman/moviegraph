@@ -18,18 +18,18 @@ import time
 import zipfile
 from pathlib import Path
 
-from sources import amazon, netflix
+from sources import amazon, amazon_request, netflix
 
 ROOT = Path(__file__).resolve().parent.parent
 ENV_FILE = ROOT / ".env"
-ADAPTERS = [amazon, netflix]
+ADAPTERS = [amazon, amazon_request, netflix]
 
 HOW_TO_GET = """\
 Where to get your exports (click-by-click steps in docs/getting-your-data.md):
   Netflix  https://www.netflix.com/account/getmyinfo  Submit request, confirm the email, then download the
            .zip from the second email (hours to days later)
-  Amazon   open https://www.primevideo.com/settings/watch-history and run the exporter script from
-           https://github.com/twocaretcat/watch-history-exporter-for-amazon-prime-video (about 5 minutes)
+  Amazon   https://www.amazon.com/hz/privacy-central/data-requests/preview.html  click Prime Video,
+           Submit request, confirm the email, then download "Prime Video.zip" when it's ready (days)
 Leave the files in your Downloads folder and run this again with --import (run.cmd does that)."""
 
 

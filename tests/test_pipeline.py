@@ -331,5 +331,48 @@ class Setup(unittest.TestCase):
         self.assertEqual(len(list((self.tmp / "data" / "staging_replaced").rglob("*.csv"))), 1)
 
 
+class AmazonRequest(unittest.TestCase):
+    """Amazon's own data request: Viewing History.csv and Customer Feedback.csv from "Prime Video.zip"."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = Path(tempfile.mkdtemp())
+        src = ROOT / "tests" / "fixtures" / "amazon_request"
+        staging = cls.tmp / "staging"
+        staging.mkdir()
+        with zipfile.ZipFile(staging / "Prime Video.zip", "w") as z:
+            z.write(src / "Viewing History.csv", "Your Prime Video Viewing Activity/Viewing History.csv")
+            z.write(src / "Customer Feedback.csv", "Your Prime Video Library & Purchases/Customer Feedback.csv")
+        run("scripts/normalize.py", "--staging", staging, "--out", cls.tmp / "out")
+        cls.movies = {r["title"]: r for r in rows(cls.tmp / "out" / "movies.csv")}
+        cls.shows = {r["show"]: r for r in rows(cls.tmp / "out" / "tv_shows.csv")}
+        cls.extras = {r["title"]: r for r in rows(cls.tmp / "out" / "extras.csv")}
+
+    def test_episodes(self):
+        self.assertEqual(self.shows["Foundation"]["episodes_watched"], "2")
+        self.assertIn("Oz", self.shows)
+        self.assertIn("Schitt's Creek", self.shows)  # no season, but two different episodes
+        self.assertIn("Sea Oak", self.shows)  # "Pilot-"
+        self.assertIn("(show name missing in export)", self.shows)  # "Episode 3-Season 1"
+
+    def test_movies(self):
+        self.assertEqual(set(self.movies), {"Spider-Man: Homecoming", "Glass", "Tombstone", "Caveat", "The Maiden Heist"})
+        self.assertEqual(self.movies["Glass"]["sources"], "amazon")
+        self.assertEqual(self.movies["Glass"]["verify_type"], "yes")
+        self.assertEqual(self.movies["Spider-Man: Homecoming"]["minutes_watched"], "100")
+        self.assertEqual(self.movies["Tombstone"]["first_watched"], "")  # 1990 is a placeholder date
+
+    def test_ratings(self):
+        self.assertEqual(self.movies["Glass"]["rating_label"], "liked")
+        self.assertEqual(self.movies["Caveat"]["rating_label"], "disliked")  # rated, so kept despite 2 minutes
+        self.assertEqual(self.movies["The Maiden Heist"]["type_basis"], "rated on Amazon, not in viewing history")
+        self.assertNotIn("Cats", self.movies)  # "Not Interested" is no opinion
+
+    def test_extras(self):
+        self.assertIn("The Accountant 2 - Trailer", self.extras)
+        self.assertNotIn("Clueless", self.movies)  # Trailer and Promo rows are not views
+        self.assertNotIn("Reacher", self.shows)
+
+
 if __name__ == "__main__":
     unittest.main()

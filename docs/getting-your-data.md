@@ -1,14 +1,14 @@
 # Getting your data
 
-You need one export from each service you use. **Request Netflix first**: it is the slow one (often a day,
-sometimes longer). Amazon takes about five minutes. Leave both files in your **Downloads** folder and don't open
-them in Excel (re-saving the Amazon file can wipe its dates). Then double-click `run.cmd`, or run
-`python scripts/run_pipeline.py --import`.
+You need one export from each service you use. **Send both requests today**: Netflix and Amazon each email you a
+.zip, usually within a day or two but sometimes longer. Leave the files in your **Downloads** folder as they are (no
+unzipping, no opening in Excel), then double-click `run.cmd`, or run `python scripts/run_pipeline.py --import`.
 
 | | How | Time | File you end up with |
 |---|---|---|---|
 | Netflix | Ask Netflix for a copy of your personal information | hours to days, by email | `netflix-report.zip` (any name is fine) |
-| Amazon Prime Video | Run a small open-source script on your watch history page | ~5 minutes | `watch-history-export-<date>.csv` |
+| Amazon Prime Video | Ask Amazon for your Prime Video data | days, by email | `Prime Video.zip` |
+| Amazon, same day | Or: run a small open-source script on your watch history page | ~5 minutes | `watch-history-export-<date>.csv` |
 | TMDB key | Free sign-up | ~5 minutes, one time | a key you paste when the pipeline asks |
 
 ## Netflix
@@ -34,13 +34,32 @@ counts. To leave some out (the kids', a guest's), put the names to keep in `data
 
 ## Amazon Prime Video
 
-Amazon has no download button for watch history. Two ways to get it:
+Two ways, and either one is enough:
 
-### Fast way: the exporter script (recommended)
+| | Amazon's data request (recommended) | Exporter script |
+|---|---|---|
+| Effort | a few clicks, then wait for email | paste a script into the browser console |
+| Arrives | days (Amazon allows up to a month) | in about 5 minutes |
+| Your Likes / Dislikes | yes | no |
+| Minutes watched | yes, so 5-minute samples are left out | no |
+| Movie or TV | not stated; worked out from the title and checked on TMDB | stated by Amazon |
+
+### Amazon's data request
+
+1. Sign in at **[Amazon → Request your data](https://www.amazon.com/hz/privacy-central/data-requests/preview.html)**.
+2. Click **Prime Video**, then **Submit request**.
+3. Click the confirmation link Amazon emails you. Nothing happens until you do.
+4. Wait for the "your data is ready" email, open the link, and download the file. It is called
+   `Prime Video.zip`. Leave it zipped in Downloads.
+
+The pipeline reads `Viewing History.csv` (every playback) and `Customer Feedback.csv` (your Likes and Dislikes)
+from inside the zip. The other files (IP addresses, search history and so on) are never read.
+
+### Exporter script (same day)
 
 [Watch History Exporter for Amazon Prime Video](https://github.com/twocaretcat/watch-history-exporter-for-amazon-prime-video)
 is a small open-source script that reads your watch history page and saves it as a CSV. It runs in your own
-browser, signed in as you, and sends nothing anywhere else. Its CSV is the format this pipeline expects.
+browser, signed in as you, and sends nothing anywhere else. Use it if you want your graph today.
 
 1. In Chrome or Edge, open **[primevideo.com/settings/watch-history](https://www.primevideo.com/settings/watch-history)**
    and sign in. If several people share the Amazon account, it is the account's watch history either way.
@@ -62,16 +81,6 @@ browser, signed in as you, and sends nothing anywhere else. Its CSV is the forma
 You are pasting someone else's code into a page where you are signed in, so it is reasonable to look it over first.
 It is short and readable, or you can ask Claude to read it for you.
 
-### Slow way: Amazon's own data request
-
-1. Sign in at **[Amazon → Request your data](https://www.amazon.com/hz/privacy-central/data-requests/preview.html)**.
-2. Click **Prime Video**, then **Submit request**.
-3. Confirm with the link Amazon emails you.
-4. Wait for the "your data is ready" email (Amazon allows up to a month) and download the .zip.
-
-**The pipeline can't read that format yet** (the viewing history is one file in a large .zip with different
-columns), so use the script above for now.
-
 ## TMDB API key (once)
 
 1. Create a free account at [themoviedb.org/signup](https://www.themoviedb.org/signup) and confirm the email.
@@ -83,5 +92,5 @@ columns), so use the script above for now.
 
 ## Later updates
 
-Ask Netflix again and rerun the Amazon script whenever you want a fresh graph. Each export holds your whole
+Request again (or rerun the Amazon script) whenever you want a fresh graph. Each export holds your whole
 history, so the newest one replaces the old one. `--import` handles that, and only new titles are looked up on TMDB.
