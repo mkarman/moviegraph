@@ -109,6 +109,10 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
 .floater { position: absolute; left: 12px; bottom: 34px; width: min(320px, calc(100% - 24px)); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; box-shadow: 0 8px 24px rgba(0,0,0,.14); display: grid; gap: 6px; }
 .floater h2 { font: 400 22px/1.1 var(--font-display); margin: 0; padding-right: 20px; }
 .floater .x { position: absolute; right: 8px; top: 6px; border: 0; background: none; color: var(--muted); font-size: 18px; cursor: pointer; }
+.floater textarea { width: 100%; box-sizing: border-box; min-height: 54px; resize: vertical; padding: 6px 8px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); color: var(--ink); font: italic 13px/1.35 var(--font-body); }
+.floater .note-head { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; margin-top: 4px; }
+.notes-on { display: flex; gap: 6px; align-items: center; font-size: 12px; margin-top: 8px; cursor: pointer; }
+.notes-on span { color: var(--muted); font-family: var(--font-data); font-size: 11px; margin-left: auto; }
 .floater .chip[aria-pressed="true"] { background: var(--cc); border-color: var(--cc); color: var(--surface); }
 .selbar { position: absolute; left: 12px; right: 12px; bottom: 34px; background: var(--ink); color: var(--bg); border-radius: var(--r); padding: 8px 10px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
 .selbar button { border: 0; border-radius: 4px; padding: 4px 9px; background: var(--bg); color: var(--ink); font: 12px var(--font-body); cursor: pointer; }
@@ -151,10 +155,11 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
 .mcard h2 { margin: 0; text-align: center; }
 .mcard .csub { text-align: center; margin: 4px 0 14px; font-style: italic; }
 .mcard ul { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px 30px; }
-.mcard li { display: grid; gap: 2px; min-width: 0; }
+.mcard li { display: grid; gap: 2px; min-width: 0; align-content: start; }
 .mcard .dt { display: flex; gap: 8px; align-items: baseline; }
 .mcard .lead { flex: 1; border-bottom: 1px dotted currentColor; opacity: .4; transform: translateY(-3px); min-width: 12px; }
 .mcard .dm { font-size: .85em; opacity: .75; }
+.mcard .dn { font-style: italic; text-wrap: pretty; margin-top: 2px; }
 .mcard .none { text-align: center; opacity: .6; font-style: italic; }
 /* Chef's Selections: tasting plates priced at their total running time, Chef's Choice centered between them */
 .mcard { --acc: currentColor; --rule: currentColor; }
@@ -294,6 +299,7 @@ textarea.copyfallback { width: 100%; box-sizing: border-box; min-height: 90px; f
     <div>
       <div class="label"><span>House style</span></div>
       <div class="seg" id="houseStyle" role="group" aria-label="House style"></div>
+      <label class="notes-on"><input type="checkbox" id="notesOn"> Tasting notes under each dish <span id="notesCount"></span></label>
     </div>
     <div class="steps" role="group" aria-label="Menu steps">
       <button type="button" data-step="1" aria-pressed="true"><b>1</b> Courses</button>
@@ -602,6 +608,10 @@ function loadMenus() {
 }
 const book = loadMenus();
 if (!book.menus[book.active]) book.active = Object.keys(book.menus)[0];
+// Tasting notes: the one-liner from scripts/write_blurbs.py, unless you've written your own on the movie's card.
+// Your own notes belong to the movie, not the menu, so every menu shows them.
+const myNotes = () => (book.notes ??= {});
+const noteOf = x => (myNotes()[x.id] ?? x.blurb ?? '').trim();
 const saveMenus = () => { try { localStorage.setItem(STORE, JSON.stringify(book)); } catch (e) {} };
 const cur = () => book.menus[book.active];
 Object.assign(menu, { sug: {} });
@@ -638,6 +648,9 @@ function renderMenu() {
   if (document.activeElement !== $('menuName')) $('menuName').value = m.name;
   $('houseStyle').innerHTML = Object.entries(HOUSES).map(([k, v]) => `<button type="button" data-h="${k}" aria-pressed="${k === m.house}">${v.label}</button>`).join('');
   $('houseStyle').querySelectorAll('button').forEach(b => b.onclick = () => { m.house = b.dataset.h; saveMenus(); renderMenu(); });
+  const onMenu = MOVIES.filter(x => m.tags[x.id]);
+  $('notesOn').checked = !!m.notes;
+  $('notesCount').textContent = onMenu.length ? `${onMenu.filter(noteOf).length} of ${onMenu.length} have one` : '';
   $('bins').innerHTML = COURSES.map(c => {
     const items = MOVIES.filter(x => m.tags[x.id] === c.key).sort((a, b) => a.title.localeCompare(b.title));
     return `<section class="bin" data-course="${c.key}" style="--cc:var(${c.color})"><div class="bin-head"><h3>${h.c[c.key][0]}</h3><span class="role">${c.role}</span><span class="n">${items.length}</span></div>
@@ -716,6 +729,7 @@ function tag(ids, course) {
   for (const id of ids) { if (course) m.tags[id] = course; else delete m.tags[id]; delete menu.sug[id]; }
   saveMenus(); renderMenu(); draw();
 }
+$('notesOn').onchange = e => { cur().notes = e.target.checked; saveMenus(); renderMenu(); };
 $('menuPick').onchange = e => { book.active = e.target.value; menu.sug = {}; saveMenus(); renderMenu(); draw(); };
 $('menuName').oninput = e => { cur().name = e.target.value; saveMenus(); const o = $('menuPick').selectedOptions[0]; if (o) o.textContent = e.target.value || 'Untitled menu'; };
 $('newMenu').onclick = () => {
@@ -800,8 +814,17 @@ function renderTagCard() {
   const k = cur().tags[m.id], h = HOUSES[cur().house];
   el.innerHTML = `<button type="button" class="x" aria-label="Close">×</button><h2>${esc(m.title)}</h2>
     <div class="meta">${[m.year, m.directors?.[0], m.runtime && `${m.runtime} min`, m.rating != null && `${m.rating} TMDb`].filter(Boolean).map(esc).join(' · ')}</div>
-    <div class="chips">${COURSES.map(c => `<button type="button" class="chip" data-c="${c.key}" aria-pressed="${k === c.key}" style="--cc:var(${c.color})"><span class="dot" style="background:var(${c.color})"></span>${h.c[c.key][0]}</button>`).join('')}</div>`;
+    <div class="chips">${COURSES.map(c => `<button type="button" class="chip" data-c="${c.key}" aria-pressed="${k === c.key}" style="--cc:var(${c.color})"><span class="dot" style="background:var(${c.color})"></span>${h.c[c.key][0]}</button>`).join('')}</div>
+    <div class="note-head"><label for="noteEdit">Tasting note</label>${myNotes()[m.id] != null && m.blurb ? '<button type="button" class="link" id="noteReset">Use the written one</button>' : ''}</div>
+    <textarea id="noteEdit" placeholder="A line for the menu, e.g. a country house with an appetite, served in candy colours.">${esc(noteOf(m))}</textarea>`;
   el.querySelector('.x').onclick = closeTagCard;
+  // An edit becomes your note for this movie; clearing the box goes back to the written one, if there is one
+  $('noteEdit').oninput = e => {
+    const v = e.target.value.trim();
+    if (v && v !== (m.blurb || '').trim()) myNotes()[m.id] = v; else delete myNotes()[m.id];
+    saveMenus(); if (!$('overlay').hidden) renderCard();
+  };
+  $('noteReset')?.addEventListener('click', () => { delete myNotes()[m.id]; saveMenus(); renderMenu(); });
   el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => tag([m.id], k === b.dataset.c ? null : b.dataset.c));
 }
 
@@ -829,7 +852,7 @@ function renderCard() {
   card.innerHTML = `<div class="mast"><span class="tag">${esc(h.tag)}</span><h1>${esc(m.name || 'Untitled menu')}</h1></div>` + COURSES.map(c => {
     const items = courseItems(m, c.key);
     return `<section class="course"><h2>${h.c[c.key][0]}${h.jp ? `<span class="jp">${h.jp[c.key]}</span>` : ''}</h2><p class="csub">${esc(h.c[c.key][1])}</p>` +
-      (items.length ? `<ul>${items.map(x => `<li><div class="dt"><span>${esc(x.title)}</span><span class="lead"></span><span>${h.price ? h.price(x) : (x.year || '')}</span></div><div class="dm">${esc(h.meta(x))}</div></li>`).join('')}</ul>` : `<p class="none">Nothing on this course yet.</p>`) + `</section>`;
+      (items.length ? `<ul>${items.map(x => `<li><div class="dt"><span>${esc(x.title)}</span><span class="lead"></span><span>${h.price ? h.price(x) : (x.year || '')}</span></div><div class="dm">${esc(h.meta(x))}</div>${m.notes && noteOf(x) ? `<div class="dn">${esc(noteOf(x))}</div>` : ''}</li>`).join('')}</ul>` : `<p class="none">Nothing on this course yet.</p>`) + `</section>`;
   }).join('') + selectionsHTML(m, h);
 }
 function plateHTML(m, h, s, i) {
@@ -894,7 +917,7 @@ $('copyMenu').onclick = () => {
   const m = cur(), h = HOUSES[m.house];
   const text = [m.name || 'Untitled menu', ...COURSES.flatMap(c => {
     const items = courseItems(m, c.key); if (!items.length) return [];
-    return ['', h.c[c.key][0].toUpperCase(), ...items.map(x => `- ${x.title}${x.year ? ` (${x.year})` : ''}`)];
+    return ['', h.c[c.key][0].toUpperCase(), ...items.map(x => `- ${x.title}${x.year ? ` (${x.year})` : ''}${m.notes && noteOf(x) ? `: ${noteOf(x)}` : ''}`)];
   }), ...(m.sels || []).flatMap((s, i) => !plateMovies(s).length ? [] : [
     '', `${h.sel.title.toUpperCase()}: ${s.name.trim() || (s.chef ? "Chef's Choice" : `Selection ${i + 1}`)}${s.chef ? ' ★' : ''}`,
     ...plateMovies(s).map(x => `- ${x.title}${x.year ? ` (${x.year})` : ''}`),

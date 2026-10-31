@@ -8,7 +8,8 @@ Usage: python scripts/run_pipeline.py [--import [FOLDER]] [--profile NAME ...] [
   0. --import       FOLDER (default: your Downloads) -> data/staging/   newest Amazon and Netflix export
   1. normalize.py   data/staging/**        -> data/normalized/*.csv
   2. enrich_tmdb.py data/normalized/movies.csv -> data/enriched_tmdb.json   (needs TMDB_API_KEY for new titles)
-  3. build_graph.py data/enriched_tmdb.json   -> graph/movie-graph.html
+  3. write_blurbs.py data/enriched_tmdb.json  -> data/blurbs.json         (only with --blurbs; needs ANTHROPIC_API_KEY)
+  4. build_graph.py data/enriched_tmdb.json   -> graph/movie-graph.html
 
 Before anything runs it checks that there are exports to read and a TMDB key to use, and says what to do if
 not. The key comes from the TMDB_API_KEY environment variable or the repo's .env file (gitignored); when it is

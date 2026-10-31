@@ -8,13 +8,20 @@ Each movie needs a title; these fields are used when present (aliases in bracket
   rating [vote_average], runtime, tmdb_id [id].
 Viewing history from scripts/normalize.py is carried along when present: sources, profiles, last_watched, and
 your own rating as rating_label (liked / neutral / disliked) and rating_score (0 to 1).
+A one-line menu note per film ("blurb") comes from the input's own blurb field or from data/blurbs.json
+(scripts/write_blurbs.py), keyed by TMDB id; --blurbs PATH points somewhere else.
 Rows TMDB identified as TV shows (media_type "tv") are left out, and two rows that matched the same TMDB film
 (say "Die Hard (4K UHD)" from Amazon and "Die Hard" from Netflix) become one node.
 """
 import json, sys, pathlib
 here = pathlib.Path(__file__).parent
-src = pathlib.Path(sys.argv[1]) if len(sys.argv) > 1 else here / "sample_movies.json"
-out = pathlib.Path(sys.argv[2]) if len(sys.argv) > 2 else here / "movie-graph.html"
+argv = sys.argv[1:]
+blurb_file = here.parent / "data" / "blurbs.json"
+if "--blurbs" in argv:
+    i = argv.index("--blurbs"); blurb_file = pathlib.Path(argv[i + 1]); del argv[i:i + 2]
+src = pathlib.Path(argv[0]) if argv else here / "sample_movies.json"
+out = pathlib.Path(argv[1]) if len(argv) > 1 else here / "movie-graph.html"
+blurbs = json.loads(blurb_file.read_text(encoding="utf-8")) if blurb_file.exists() else {}
 
 data = json.loads(src.read_text(encoding="utf-8"))
 items = data["movies"] if isinstance(data, dict) else data
@@ -48,6 +55,7 @@ for i, m in enumerate(items):
         "sources": sorted(set(names(m.get("sources")))),
         "profiles": sorted(set(names(m.get("profiles")))),
         "last_watched": m.get("last_watched") or None,
+        "blurb": m.get("blurb") or blurbs.get(node_id) or None,
         "scores": [float(score)] if score not in (None, "") else [],
     }
     seen = by_id.get(node_id)
