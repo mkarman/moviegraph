@@ -14,16 +14,29 @@ The pipeline has four stages, all plain Python 3 with no third-party packages:
 
 ## Quick start
 
-```bash
-# 1. Stage your exports (any file names, any subfolders)
-#    data/staging/amazon/watch-history.csv
-#    data/staging/netflix/ViewingActivity.csv, Ratings.csv   (or the whole Netflix .zip)
+1. **Request your exports.** [docs/getting-your-data.md](docs/getting-your-data.md) has the links and click-by-click
+   steps. In short: Netflix at [getmyinfo](https://www.netflix.com/account/getmyinfo) and Amazon at
+   [Request your data](https://www.amazon.com/hz/privacy-central/data-requests/preview.html) → Prime Video. Both
+   arrive as a .zip by email, hours or days later. Leave them in Downloads.
+2. **Get a free TMDB API key** at [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) (the "API Key").
+3. **Run it.** On Windows, double-click `run.cmd`. Anywhere else:
 
-# 2-4. Normalize, enrich and build (needs a free TMDB key: https://www.themoviedb.org/settings/api)
-export TMDB_API_KEY=your-key            # PowerShell: $env:TMDB_API_KEY = "your-key"
-python scripts/run_pipeline.py          # then open graph/movie-graph.html
-# To keep only some Netflix profiles, list them in data/staging/profiles.txt (one per line) or pass --profile NAME
-```
+   ```bash
+   python scripts/run_pipeline.py --import      # copies the newest exports from ~/Downloads into data/staging/
+   ```
+
+   The first run asks for the TMDB key and offers to save it in `.env` (gitignored), so nothing has to be set in
+   your shell, then normalizes, enriches and builds the graph, and opens `graph/movie-graph.html` in your browser.
+
+Later runs: drop a newer export in Downloads and run the same thing. An older export of the same service is moved
+to `data/staging_replaced/`, not merged, and only new titles are looked up on TMDB. You can also skip `--import` and
+put the files in `data/staging/` yourself (any names, any subfolders, the Netflix .zip whole).
+
+The run lists your Netflix profiles with their view counts. To keep only some, put their names in
+`data/staging/profiles.txt`, one per line, or pass `--profile NAME`. Other options: `--import FOLDER` to look
+somewhere other than Downloads, `--skip-enrich` to rebuild the graph from earlier TMDB results, `--no-open`.
+Keys can also come from environment variables (`TMDB_API_KEY`, PowerShell: `$env:TMDB_API_KEY = "..."`), which win
+over `.env`. No GitHub login is needed to build the graph, only to publish the website.
 
 **Menu notes (optional).** The menu builder can print a one-line tasting note under each dish ("Seven schoolgirls
 and a country house with an appetite, served in candy colours."). Claude writes them once, from each film's TMDB
@@ -46,20 +59,29 @@ titles in `graph/sample_movies.json`. `python -m unittest discover tests` runs t
 
 ## Sources and how they're reconciled
 
-| | Amazon Prime Video | Netflix |
-|---|---|---|
-| File | watch history CSV | `ViewingActivity.csv`, `Ratings.csv` (from "Download your personal information") |
-| Movie or TV | stated (`Type` column) | not stated; inferred from the title, then confirmed on TMDB |
-| Dates | none usable (see limitations) | UTC start time per view |
-| Profiles | none | per view and per rating |
-| Ratings | none | 1-5 stars (older) and thumbs (newer) |
+| | Amazon data request | Amazon watch history script | Netflix |
+|---|---|---|---|
+| File | `Prime Video.zip`: `Viewing History.csv`, `Customer Feedback.csv` | watch history CSV | `ViewingActivity.csv`, `Ratings.csv` (from "Download your personal information") |
+| Movie or TV | not stated; inferred from the title, then confirmed on TMDB | stated (`Type` column) | not stated; inferred from the title, then confirmed on TMDB |
+| Dates | UTC start per playback | watch date per title | UTC start time per view |
+| Minutes watched | yes | no | yes |
+| Profiles | none | none | per view and per rating |
+| Ratings | Like / Dislike (as thumbs) | none | 1-5 stars (older) and thumbs (newer) |
+
+**Movie or TV (Amazon data request).** Amazon logs an episode as `Episode Name-Show - Season 3`, with a hyphen
+and no spaces. A title is an episode when such a hyphen leads to a season (`Season 3`, `S5`) or a collection
+(`The Complete Series`, `Volume 1`), follows `Pilot` or `Episode 4`, or leads to a show name that follows two or
+more different episode names. A single episode of a show with none of those markers (`The Exorcist-Cursed Films`)
+stays a movie candidate; it usually comes out unmatched on TMDB, and one matched to the wrong film can be
+left out with `None` in `OVERRIDES`. Only `Full` and `Feature` rows count; promos,
+trailers and live TV are not views. Playback dates before 2006 are placeholders and are dropped.
 
 **Movie or TV (Netflix).** Netflix logs an episode as `Show: Season 2: Episode Name (Episode 3)`. `normalize.py`
 treats `(Episode N)`, a middle segment like `Season 2` / `Book 1` / `Limited Series`, or a title that is exactly a
 show name seen elsewhere as TV, and trailers, clips and other `Supplemental Video Type` rows as extras. Everything
 else is a movie candidate, which `enrich_tmdb.py` also searches as a TV show: if TMDB knows it only as a show, or
-the show has more votes than the film of that name, it is dropped from the graph as TV. A Netflix movie watched for
-under 20 minutes in total and never rated counts as sampled, not watched (`--min-minutes` changes this).
+the show has more votes than the film of that name, it is dropped from the graph as TV. A movie watched for under 20 minutes in total on Netflix or
+the Amazon data request, and never rated, counts as sampled, not watched (`--min-minutes` changes this).
 
 **Ratings.** Every rating becomes `rating_label` (liked / neutral / disliked) and `rating_score` (0 to 1), and the
 raw value and scale stay in `data/normalized/ratings.csv`.
@@ -84,14 +106,17 @@ Version`) and punctuation are stripped, and again in the graph when two titles l
 
 | Path | What it does |
 |---|---|
-| `scripts/run_pipeline.py` | Runs normalize, enrich and graph in order |
+| `run.cmd` | Windows double-click launcher for `run_pipeline.py --import` |
+| `scripts/run_pipeline.py` | Checks for exports and a TMDB key, then runs normalize, enrich and graph in order and opens the graph |
+| `scripts/local_setup.py` | Reads and saves keys in `.env`, finds exports in Downloads and stages them |
 | `scripts/normalize.py` | Reads every export in `data/staging/`, writes `data/normalized/` (movies, TV shows, extras, ratings) |
-| `scripts/sources/` | One adapter per service (`amazon.py`, `netflix.py`) plus shared title and rating helpers. A new service is a new adapter with `detect()` and `views()` |
+| `scripts/sources/` | One adapter per service (`amazon.py`, `amazon_request.py`, `netflix.py`) plus shared title and rating helpers. A new service is a new adapter with `detect()` and `views()` |
 | `scripts/enrich_tmdb.py` | Searches TMDB per title (exact match first, most-voted on ties, then fuzzy), checks unknown types against TV search, fetches credits and keywords. Hand fixes go in `OVERRIDES` |
 | `graph/build_graph.py` | Injects movie JSON into `graph/template.html` to produce `movie-graph.html` |
 | `graph/template.html` | The graph UI: force layout, filters (genre, your rating, service, profile, year, TMDB rating), search |
 | `graph/make_sample.py` | Regenerates `graph/sample_movies.json` |
 | `tests/` | Synthetic Amazon and Netflix exports and end-to-end tests |
+| `docs/getting-your-data.md` | Click-by-click steps for requesting each export and a TMDB key |
 | `docs/enrichment.md` | Why TMDB, match-rate results and known gaps |
 | `data/` | Your local data. Gitignored except its README |
 
@@ -120,7 +145,8 @@ Settings → Pages → Build and deployment → Source: **GitHub Actions**.
   The published movie list in `site/movies.json` is a trimmed copy: TMDB id, title, year, genres, directors, cast, rating, runtime.
   Refresh it with `python scripts/export_site.py`, which adds which service each film was watched on and your
   liked/neutral/disliked score, and never writes watch dates or profile names (`--no-ratings` drops your scores too).
-- The TMDB key is read only from the `TMDB_API_KEY` environment variable. Never put it in a file in this repo.
+- The TMDB key is read from the `TMDB_API_KEY` environment variable, or from `.env` at the repo root, which is
+  gitignored. Don't put it in any other file in this repo.
 
 ## Known limitations
 

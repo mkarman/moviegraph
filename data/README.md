@@ -4,9 +4,13 @@ Everything in this folder except this file is gitignored, because it is personal
 
 ## Staging: put your exports here
 
+`python scripts/run_pipeline.py --import` (or `run.cmd` on Windows) copies the newest exports from your Downloads
+folder here for you, and moves an older export of the same service to `staging_replaced/`.
+
 ```
 data/staging/
-  amazon/watch-history.csv          Prime Video watch history page export
+  amazon/Prime Video.zip            Amazon "Request your data" -> Prime Video, left zipped (docs/getting-your-data.md)
+  amazon/watch-history.csv          or: the watch history exporter script's CSV
   netflix/ViewingActivity.csv       from Netflix "Download your personal information", CONTENT_INTERACTION folder
   netflix/Ratings.csv               same folder; optional, adds your ratings
   profiles.txt                      optional: Netflix profiles to keep, one name per line (default: all)
