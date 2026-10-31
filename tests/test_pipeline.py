@@ -287,6 +287,11 @@ class Setup(unittest.TestCase):
         self.tmp = Path(tempfile.mkdtemp())
         self.fixtures = ROOT / "tests" / "fixtures" / "staging"
 
+    def test_exporter_dates(self):
+        """The Prime Video exporter script's default timestamp, 2025-09-28 02:00:24.173, keeps its date."""
+        from sources.common import parse_date
+        self.assertEqual(parse_date("2025-09-28 02:00:24.173"), "2025-09-28")
+
     def test_env_file(self):
         env = self.tmp / ".env"
         env.write_text('# keys\nexport ANTHROPIC_API_KEY="abc"\nTMDB_API_KEY=old\n', encoding="utf-8")

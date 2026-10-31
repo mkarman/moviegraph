@@ -9,7 +9,7 @@ folder here for you, and moves an older export of the same service to `staging_r
 
 ```
 data/staging/
-  amazon/watch-history.csv          Prime Video watch history page export
+  amazon/watch-history.csv          Prime Video watch history (exporter script, see docs/getting-your-data.md)
   netflix/ViewingActivity.csv       from Netflix "Download your personal information", CONTENT_INTERACTION folder
   netflix/Ratings.csv               same folder; optional, adds your ratings
   profiles.txt                      optional: Netflix profiles to keep, one name per line (default: all)

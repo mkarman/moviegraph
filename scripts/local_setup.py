@@ -25,12 +25,12 @@ ENV_FILE = ROOT / ".env"
 ADAPTERS = [amazon, netflix]
 
 HOW_TO_GET = """\
-Where to get your exports:
-  Netflix  https://www.netflix.com/account/getmyinfo  (sign in as the account owner, request your
-           personal information, then download the .zip from the email; it can take a day or more)
-  Amazon   the watch history CSV from your Prime Video watch history page
-           (https://www.primevideo.com/settings/watch-history)
-Leave them in your Downloads folder and run this again with --import, or copy them into data/staging/."""
+Where to get your exports (click-by-click steps in docs/getting-your-data.md):
+  Netflix  https://www.netflix.com/account/getmyinfo  Submit request, confirm the email, then download the
+           .zip from the second email (hours to days later)
+  Amazon   open https://www.primevideo.com/settings/watch-history and run the exporter script from
+           https://github.com/twocaretcat/watch-history-exporter-for-amazon-prime-video (about 5 minutes)
+Leave the files in your Downloads folder and run this again with --import (run.cmd does that)."""
 
 
 # --- keys -------------------------------------------------------------------------------------------------

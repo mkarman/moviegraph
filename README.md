@@ -14,9 +14,10 @@ The pipeline has four stages, all plain Python 3 with no third-party packages:
 
 ## Quick start
 
-1. **Request your exports.** Netflix: [getmyinfo](https://www.netflix.com/account/getmyinfo), signed in as the
-   account owner; the .zip arrives by email, sometimes a day or more later. Amazon: the watch history CSV from the
-   [Prime Video watch history page](https://www.primevideo.com/settings/watch-history). Leave both in your Downloads folder.
+1. **Request your exports.** [docs/getting-your-data.md](docs/getting-your-data.md) has the links and click-by-click
+   steps. In short: Netflix at [getmyinfo](https://www.netflix.com/account/getmyinfo) (request first, since the .zip
+   arrives by email hours or days later), and Amazon with a short exporter script run on your
+   [Prime Video watch history page](https://www.primevideo.com/settings/watch-history). Leave both in Downloads.
 2. **Get a free TMDB API key** at [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) (the "API Key").
 3. **Run it.** On Windows, double-click `run.cmd`. Anywhere else:
 
@@ -94,6 +95,7 @@ Version`) and punctuation are stripped, and again in the graph when two titles l
 | `graph/template.html` | The graph UI: force layout, filters (genre, your rating, service, profile, year, TMDB rating), search |
 | `graph/make_sample.py` | Regenerates `graph/sample_movies.json` |
 | `tests/` | Synthetic Amazon and Netflix exports and end-to-end tests |
+| `docs/getting-your-data.md` | Click-by-click steps for requesting each export and a TMDB key |
 | `docs/enrichment.md` | Why TMDB, match-rate results and known gaps |
 | `data/` | Your local data. Gitignored except its README |
 
