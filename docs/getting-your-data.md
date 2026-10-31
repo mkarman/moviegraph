@@ -64,10 +64,13 @@ It is short and readable, or you can ask Claude to read it for you.
 
 ### Slow way: Amazon's own data request
 
-[Amazon → Request your data](https://www.amazon.com/hz/privacy-central/data-requests/preview.html) → choose
-**Prime Video** → **Submit request** → confirm the email. Amazon takes days to weeks and sends a different format
-(the viewing history is buried in a large .zip). **The pipeline can't read that format yet**, so use the script
-unless you have a reason not to.
+1. Sign in at **[Amazon → Request your data](https://www.amazon.com/hz/privacy-central/data-requests/preview.html)**.
+2. Click **Prime Video**, then **Submit request**.
+3. Confirm with the link Amazon emails you.
+4. Wait for the "your data is ready" email (Amazon allows up to a month) and download the .zip.
+
+**The pipeline can't read that format yet** (the viewing history is one file in a large .zip with different
+columns), so use the script above for now.
 
 ## TMDB API key (once)
 
