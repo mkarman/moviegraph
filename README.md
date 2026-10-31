@@ -14,16 +14,28 @@ The pipeline has four stages, all plain Python 3 with no third-party packages:
 
 ## Quick start
 
-```bash
-# 1. Stage your exports (any file names, any subfolders)
-#    data/staging/amazon/watch-history.csv
-#    data/staging/netflix/ViewingActivity.csv, Ratings.csv   (or the whole Netflix .zip)
+1. **Request your exports.** Netflix: [getmyinfo](https://www.netflix.com/account/getmyinfo), signed in as the
+   account owner; the .zip arrives by email, sometimes a day or more later. Amazon: the watch history CSV from the
+   [Prime Video watch history page](https://www.primevideo.com/settings/watch-history). Leave both in your Downloads folder.
+2. **Get a free TMDB API key** at [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) (the "API Key").
+3. **Run it.** On Windows, double-click `run.cmd`. Anywhere else:
 
-# 2-4. Normalize, enrich and build (needs a free TMDB key: https://www.themoviedb.org/settings/api)
-export TMDB_API_KEY=your-key            # PowerShell: $env:TMDB_API_KEY = "your-key"
-python scripts/run_pipeline.py          # then open graph/movie-graph.html
-# To keep only some Netflix profiles, list them in data/staging/profiles.txt (one per line) or pass --profile NAME
-```
+   ```bash
+   python scripts/run_pipeline.py --import      # copies the newest exports from ~/Downloads into data/staging/
+   ```
+
+   The first run asks for the TMDB key and offers to save it in `.env` (gitignored), so nothing has to be set in
+   your shell, then normalizes, enriches and builds the graph, and opens `graph/movie-graph.html` in your browser.
+
+Later runs: drop a newer export in Downloads and run the same thing. An older export of the same service is moved
+to `data/staging_replaced/`, not merged, and only new titles are looked up on TMDB. You can also skip `--import` and
+put the files in `data/staging/` yourself (any names, any subfolders, the Netflix .zip whole).
+
+The run lists your Netflix profiles with their view counts. To keep only some, put their names in
+`data/staging/profiles.txt`, one per line, or pass `--profile NAME`. Other options: `--import FOLDER` to look
+somewhere other than Downloads, `--skip-enrich` to rebuild the graph from earlier TMDB results, `--no-open`.
+Keys can also come from environment variables (`TMDB_API_KEY`, PowerShell: `$env:TMDB_API_KEY = "..."`), which win
+over `.env`. No GitHub login is needed to build the graph, only to publish the website.
 
 Each stage also runs on its own: `scripts/normalize.py`, `scripts/enrich_tmdb.py` (`--limit 20` for a quick trial),
 and `graph/build_graph.py data/enriched_tmdb.json graph/movie-graph.html`. Enrichment reuses earlier matches from
@@ -72,7 +84,9 @@ Version`) and punctuation are stripped, and again in the graph when two titles l
 
 | Path | What it does |
 |---|---|
-| `scripts/run_pipeline.py` | Runs normalize, enrich and graph in order |
+| `run.cmd` | Windows double-click launcher for `run_pipeline.py --import` |
+| `scripts/run_pipeline.py` | Checks for exports and a TMDB key, then runs normalize, enrich and graph in order and opens the graph |
+| `scripts/local_setup.py` | Reads and saves keys in `.env`, finds exports in Downloads and stages them |
 | `scripts/normalize.py` | Reads every export in `data/staging/`, writes `data/normalized/` (movies, TV shows, extras, ratings) |
 | `scripts/sources/` | One adapter per service (`amazon.py`, `netflix.py`) plus shared title and rating helpers. A new service is a new adapter with `detect()` and `views()` |
 | `scripts/enrich_tmdb.py` | Searches TMDB per title (exact match first, most-voted on ties, then fuzzy), checks unknown types against TV search, fetches credits and keywords. Hand fixes go in `OVERRIDES` |
@@ -108,7 +122,8 @@ Settings → Pages → Build and deployment → Source: **GitHub Actions**.
   The published movie list in `site/movies.json` is a trimmed copy: TMDB id, title, year, genres, directors, cast, rating, runtime.
   Refresh it with `python scripts/export_site.py`, which adds which service each film was watched on and your
   liked/neutral/disliked score, and never writes watch dates or profile names (`--no-ratings` drops your scores too).
-- The TMDB key is read only from the `TMDB_API_KEY` environment variable. Never put it in a file in this repo.
+- The TMDB key is read from the `TMDB_API_KEY` environment variable, or from `.env` at the repo root, which is
+  gitignored. Don't put it in any other file in this repo.
 
 ## Known limitations
 

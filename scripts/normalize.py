@@ -110,11 +110,23 @@ def main():
     if not views:
         sys.exit("No watch history found in the staging folder.")
 
+    counts = defaultdict(int)
+    for v in views:
+        if v["profile"]:
+            counts[v["profile"]] += 1
+    if counts:
+        print("Netflix profiles: " + ", ".join(f"{p} ({n} views)" for p, n in sorted(counts.items(), key=lambda x: -x[1])))
+
     profiles_file = args.staging / "profiles.txt"
     if not args.profile and profiles_file.exists():
         args.profile = [ln.strip() for ln in profiles_file.read_text(encoding="utf-8").splitlines() if ln.strip()]
     if args.profile:
         print(f"Keeping Netflix profiles: {', '.join(args.profile)}")
+        missing = [p for p in args.profile if p.lower() not in {c.lower() for c in counts}]
+        if missing:
+            print(f"  No views for {', '.join(missing)}; check the spelling against the list above")
+    elif len(counts) > 1:
+        print(f"  Keeping all of them. To keep only some, list their names in {profiles_file}, one per line")
     wanted = {p.lower() for p in args.profile}
     if wanted:
         views = [v for v in views if not v["profile"] or v["profile"].lower() in wanted]

@@ -5,10 +5,13 @@ Run: python -m unittest discover tests
 
 import csv
 import json
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -273,6 +276,54 @@ class TvCheck(unittest.TestCase):
                   {"24": [{"id": 1973, "name": "24", "vote_count": 3000}]})
         r = enrich_tmdb.enrich({"id": "24", "title": "24", "verify_type": "no"})
         self.assertTrue(r["matched"])
+
+
+class Setup(unittest.TestCase):
+    """First-run helpers: the .env key file and copying exports out of Downloads."""
+
+    def setUp(self):
+        import local_setup
+        self.ls = local_setup
+        self.tmp = Path(tempfile.mkdtemp())
+        self.fixtures = ROOT / "tests" / "fixtures" / "staging"
+
+    def test_env_file(self):
+        env = self.tmp / ".env"
+        env.write_text('# keys\nexport ANTHROPIC_API_KEY="abc"\nTMDB_API_KEY=old\n', encoding="utf-8")
+        self.ls.save_env("TMDB_API_KEY", "new", env)
+        self.assertEqual(self.ls.read_env(env), {"ANTHROPIC_API_KEY": "abc", "TMDB_API_KEY": "new"})
+
+    def test_recognizes_exports(self):
+        self.assertEqual(self.ls.provides(self.fixtures / "amazon" / "watch-history.csv"), {("amazon", "views")})
+        self.assertEqual(self.ls.provides(self.fixtures / "netflix" / "PlaybackRelatedEvents.csv"), set())
+        z = self.tmp / "netflix-report.zip"
+        with zipfile.ZipFile(z, "w") as f:
+            for name in ("ViewingActivity.csv", "Ratings.csv"):
+                f.write(self.fixtures / "netflix" / name, f"CONTENT_INTERACTION/{name}")
+        self.assertEqual(self.ls.provides(z), {("netflix", "views"), ("netflix", "ratings")})
+
+    def test_import_newest(self):
+        downloads, staging = self.tmp / "Downloads", self.tmp / "data" / "staging"
+        downloads.mkdir()
+        (downloads / "notes.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+        old = downloads / "watch-history.csv"
+        new = downloads / "watch-history (1).csv"
+        shutil.copy(self.fixtures / "amazon" / "watch-history.csv", old)
+        shutil.copy(self.fixtures / "amazon" / "watch-history.csv", new)
+        with open(new, "a", encoding="utf-8") as f:
+            f.write("\n")
+        os.utime(old, (1, 1))
+        log = []
+        self.assertEqual(self.ls.find_exports(downloads, staging, log.append), 1)
+        self.assertEqual([p.name for p in (staging / "amazon").iterdir()], [new.name])
+        # Running again copies nothing; a newer export replaces the staged one instead of adding to it
+        self.assertEqual(self.ls.find_exports(downloads, staging, log.append), 0)
+        old.unlink()
+        newer = downloads / "watch-history (2).csv"
+        shutil.copy(self.fixtures / "amazon" / "watch-history.csv", newer)
+        self.assertEqual(self.ls.find_exports(downloads, staging, log.append), 1)
+        self.assertEqual([p.name for p in (staging / "amazon").iterdir()], [newer.name])
+        self.assertEqual(len(list((self.tmp / "data" / "staging_replaced").rglob("*.csv"))), 1)
 
 
 if __name__ == "__main__":

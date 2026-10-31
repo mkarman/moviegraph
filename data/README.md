@@ -4,6 +4,9 @@ Everything in this folder except this file is gitignored, because it is personal
 
 ## Staging: put your exports here
 
+`python scripts/run_pipeline.py --import` (or `run.cmd` on Windows) copies the newest exports from your Downloads
+folder here for you, and moves an older export of the same service to `staging_replaced/`.
+
 ```
 data/staging/
   amazon/watch-history.csv          Prime Video watch history page export
