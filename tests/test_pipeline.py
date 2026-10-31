@@ -5,10 +5,13 @@ Run: python -m unittest discover tests
 
 import csv
 import json
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -273,6 +276,102 @@ class TvCheck(unittest.TestCase):
                   {"24": [{"id": 1973, "name": "24", "vote_count": 3000}]})
         r = enrich_tmdb.enrich({"id": "24", "title": "24", "verify_type": "no"})
         self.assertTrue(r["matched"])
+
+
+class Setup(unittest.TestCase):
+    """First-run helpers: the .env key file and copying exports out of Downloads."""
+
+    def setUp(self):
+        import local_setup
+        self.ls = local_setup
+        self.tmp = Path(tempfile.mkdtemp())
+        self.fixtures = ROOT / "tests" / "fixtures" / "staging"
+
+    def test_exporter_dates(self):
+        """The Prime Video exporter script's default timestamp, 2025-09-28 02:00:24.173, keeps its date."""
+        from sources.common import parse_date
+        self.assertEqual(parse_date("2025-09-28 02:00:24.173"), "2025-09-28")
+
+    def test_env_file(self):
+        env = self.tmp / ".env"
+        env.write_text('# keys\nexport ANTHROPIC_API_KEY="abc"\nTMDB_API_KEY=old\n', encoding="utf-8")
+        self.ls.save_env("TMDB_API_KEY", "new", env)
+        self.assertEqual(self.ls.read_env(env), {"ANTHROPIC_API_KEY": "abc", "TMDB_API_KEY": "new"})
+
+    def test_recognizes_exports(self):
+        self.assertEqual(self.ls.provides(self.fixtures / "amazon" / "watch-history.csv"), {("amazon", "views")})
+        self.assertEqual(self.ls.provides(self.fixtures / "netflix" / "PlaybackRelatedEvents.csv"), set())
+        z = self.tmp / "netflix-report.zip"
+        with zipfile.ZipFile(z, "w") as f:
+            for name in ("ViewingActivity.csv", "Ratings.csv"):
+                f.write(self.fixtures / "netflix" / name, f"CONTENT_INTERACTION/{name}")
+        self.assertEqual(self.ls.provides(z), {("netflix", "views"), ("netflix", "ratings")})
+
+    def test_import_newest(self):
+        downloads, staging = self.tmp / "Downloads", self.tmp / "data" / "staging"
+        downloads.mkdir()
+        (downloads / "notes.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+        old = downloads / "watch-history.csv"
+        new = downloads / "watch-history (1).csv"
+        shutil.copy(self.fixtures / "amazon" / "watch-history.csv", old)
+        shutil.copy(self.fixtures / "amazon" / "watch-history.csv", new)
+        with open(new, "a", encoding="utf-8") as f:
+            f.write("\n")
+        os.utime(old, (1, 1))
+        log = []
+        self.assertEqual(self.ls.find_exports(downloads, staging, log.append), 1)
+        self.assertEqual([p.name for p in (staging / "amazon").iterdir()], [new.name])
+        # Running again copies nothing; a newer export replaces the staged one instead of adding to it
+        self.assertEqual(self.ls.find_exports(downloads, staging, log.append), 0)
+        old.unlink()
+        newer = downloads / "watch-history (2).csv"
+        shutil.copy(self.fixtures / "amazon" / "watch-history.csv", newer)
+        self.assertEqual(self.ls.find_exports(downloads, staging, log.append), 1)
+        self.assertEqual([p.name for p in (staging / "amazon").iterdir()], [newer.name])
+        self.assertEqual(len(list((self.tmp / "data" / "staging_replaced").rglob("*.csv"))), 1)
+
+
+class AmazonRequest(unittest.TestCase):
+    """Amazon's own data request: Viewing History.csv and Customer Feedback.csv from "Prime Video.zip"."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tmp = Path(tempfile.mkdtemp())
+        src = ROOT / "tests" / "fixtures" / "amazon_request"
+        staging = cls.tmp / "staging"
+        staging.mkdir()
+        with zipfile.ZipFile(staging / "Prime Video.zip", "w") as z:
+            z.write(src / "Viewing History.csv", "Your Prime Video Viewing Activity/Viewing History.csv")
+            z.write(src / "Customer Feedback.csv", "Your Prime Video Library & Purchases/Customer Feedback.csv")
+        run("scripts/normalize.py", "--staging", staging, "--out", cls.tmp / "out")
+        cls.movies = {r["title"]: r for r in rows(cls.tmp / "out" / "movies.csv")}
+        cls.shows = {r["show"]: r for r in rows(cls.tmp / "out" / "tv_shows.csv")}
+        cls.extras = {r["title"]: r for r in rows(cls.tmp / "out" / "extras.csv")}
+
+    def test_episodes(self):
+        self.assertEqual(self.shows["Foundation"]["episodes_watched"], "2")
+        self.assertIn("Oz", self.shows)
+        self.assertIn("Schitt's Creek", self.shows)  # no season, but two different episodes
+        self.assertIn("Sea Oak", self.shows)  # "Pilot-"
+        self.assertIn("(show name missing in export)", self.shows)  # "Episode 3-Season 1"
+
+    def test_movies(self):
+        self.assertEqual(set(self.movies), {"Spider-Man: Homecoming", "Glass", "Tombstone", "Caveat", "The Maiden Heist"})
+        self.assertEqual(self.movies["Glass"]["sources"], "amazon")
+        self.assertEqual(self.movies["Glass"]["verify_type"], "yes")
+        self.assertEqual(self.movies["Spider-Man: Homecoming"]["minutes_watched"], "100")
+        self.assertEqual(self.movies["Tombstone"]["first_watched"], "")  # 1990 is a placeholder date
+
+    def test_ratings(self):
+        self.assertEqual(self.movies["Glass"]["rating_label"], "liked")
+        self.assertEqual(self.movies["Caveat"]["rating_label"], "disliked")  # rated, so kept despite 2 minutes
+        self.assertEqual(self.movies["The Maiden Heist"]["type_basis"], "rated on Amazon, not in viewing history")
+        self.assertNotIn("Cats", self.movies)  # "Not Interested" is no opinion
+
+    def test_extras(self):
+        self.assertIn("The Accountant 2 - Trailer", self.extras)
+        self.assertNotIn("Clueless", self.movies)  # Trailer and Promo rows are not views
+        self.assertNotIn("Reacher", self.shows)
 
 
 if __name__ == "__main__":

@@ -30,8 +30,10 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from local_setup import load_env
 from sources.common import key
 
+load_env()  # TMDB_API_KEY may live in the repo's .env instead of the environment
 API = "https://api.themoviedb.org/3"
 KEY = os.environ.get("TMDB_API_KEY")
 
