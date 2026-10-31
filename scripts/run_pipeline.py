@@ -3,7 +3,7 @@
 run_pipeline.py - Run every stage: staging -> normalize -> enrich -> graph, then open the graph.
 
 Usage: python scripts/run_pipeline.py [--import [FOLDER]] [--profile NAME ...] [--min-minutes 20]
-                                      [--skip-enrich] [--no-open]
+                                      [--skip-enrich] [--blurbs] [--no-open]
 
   0. --import       FOLDER (default: your Downloads) -> data/staging/   newest Amazon and Netflix export
   1. normalize.py   data/staging/**        -> data/normalized/*.csv
@@ -16,6 +16,8 @@ not. The key comes from the TMDB_API_KEY environment variable or the repo's .env
 missing, you are asked for it once and can save it to .env so later runs need nothing set.
 
 --skip-enrich rebuilds the graph from the existing data/enriched_tmdb.json, for when there is no API key at hand.
+--blurbs writes a menu note for each film that doesn't have one yet (an Anthropic API call per 20 films).
+ANTHROPIC_API_KEY can live in .env too.
 """
 
 import argparse
@@ -35,6 +37,7 @@ ap.add_argument("--import", dest="import_from", nargs="?", const=str(Path.home()
 ap.add_argument("--profile", action="append", default=[])
 ap.add_argument("--min-minutes")
 ap.add_argument("--skip-enrich", action="store_true")
+ap.add_argument("--blurbs", action="store_true", help="also write tasting notes (needs ANTHROPIC_API_KEY)")
 ap.add_argument("--no-open", action="store_true", help="don't open the graph in a browser at the end")
 args = ap.parse_args()
 
@@ -87,6 +90,8 @@ if args.skip_enrich and not enriched.exists():
              "Run once without it.")
 if not args.skip_enrich:
     need_tmdb_key()
+if args.blurbs and not os.environ.get("ANTHROPIC_API_KEY"):
+    sys.exit(f"--blurbs needs ANTHROPIC_API_KEY: add ANTHROPIC_API_KEY=your-key to {ENV_FILE}, or leave out --blurbs.")
 
 norm = ["scripts/normalize.py"] + [x for p in args.profile for x in ("--profile", p)]
 if args.min_minutes:
@@ -94,6 +99,8 @@ if args.min_minutes:
 step(*norm)
 if not args.skip_enrich:
     step("scripts/enrich_tmdb.py")
+if args.blurbs:
+    step("scripts/write_blurbs.py")
 graph = ROOT / "graph" / "movie-graph.html"
 step("graph/build_graph.py", enriched.relative_to(ROOT), graph.relative_to(ROOT))
 
